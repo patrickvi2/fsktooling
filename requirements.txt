@@ -1,0 +1,2 @@
+PyPDF4 # for merge pdf
+openpyxl # read DEU Meldeformular
