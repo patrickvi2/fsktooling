@@ -5,14 +5,17 @@ import unicodedata
 # defines
 
 ############
-if True:
+if False:
     file_type = 'Musiken'
+    find_segment_type = True
 else:
     file_type = 'PPCS'
+    find_segment_type = False
 
+force_segment_type = 'S' # S -> short or rhythm dance; F -> free skating/ dance
 input_csv_file_path = './OBM22/csv/participants.csv'
-input_dir = '/Volumes/BEV/' + file_type + '/2 - Name korrigiert'
-output_root_dir = '/Volumes/BEV/' + file_type + '/3 - sortiert'
+input_dir = '/Volumes/MANNI/' + file_type + '/2 - Name korrigiert'
+output_root_dir = '/Volumes/MANNI/' + file_type + '/3 - sortiert'
 
 
 if True: # check
@@ -34,7 +37,7 @@ def normalize_string(s : str):
     # remove spaces, dashes, dots, commas and underscores in file names
     translation_table = str.maketrans('','',' -_.,')
 
-    return s.translate(translation_table).casefold().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue')
+    return unicodedata.normalize('NFC', unicodedata.normalize('NFD', s)).translate(translation_table).casefold().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue')
 
 
 def find_indices_for_matching_search_string(string_list : list, search_string : str) -> set:
@@ -61,7 +64,7 @@ def find_indices_for_full_name(string_list : list, given_name : str, family_name
     
     return valid_idx_set
 
-def find_file_name_for_participant(participant, file_name_list) -> list:
+def find_file_name_for_participant(participant, file_name_list, find_segment_type, force_segment_type) -> list:
     cat_name = participant['Kategorie-Name']
     cat_type = participant['Kategorie-Typ']
     cat_gender = participant['Kategorie-Geschlecht']
@@ -69,7 +72,13 @@ def find_file_name_for_participant(participant, file_name_list) -> list:
     segment_name = participant['Segment-Name']
     segment_type = participant['Segment-Typ']
 
-    truncated_music_file_names = [normalize_string(s) for s in input_music_file_names]
+    truncated_music_file_names = [normalize_string(os.path.splitext(s)[0]) for s in file_name_list]
+
+    if force_segment_type:
+        if not segment_type:
+            segment_type = force_segment_type
+        elif segment_type != force_segment_type:
+            return []
 
     # copy no music for pattern dances
     if segment_type == 'D':
@@ -96,6 +105,17 @@ def find_file_name_for_participant(participant, file_name_list) -> list:
         family_name = participant['Name']
         given_name = participant['Vorname']
         valid_music_nums_name = find_indices_for_full_name(truncated_music_file_names, given_name, family_name)
+
+        # if name is ambiguous -> check, if b-day exists and instersect
+        valid_music_nums_bday = set()
+        if len(valid_music_nums_name) > 1 and find_birthday:
+            bday = participant['Geburtstag']
+            valid_music_nums_bday = find_indices_for_matching_search_string(truncated_music_file_names, bday)
+            if valid_music_nums_bday:
+                valid_music_nums_name_temp = valid_music_nums_name.intersection(valid_music_nums_bday)
+                if valid_music_nums_name_temp:
+                    valid_music_nums_name = valid_music_nums_name_temp
+
         if not valid_music_nums_name:
             valid_music_nums_family_name = find_indices_for_full_name(truncated_music_file_names, given_name, family_name, True)
 
@@ -110,43 +130,40 @@ def find_file_name_for_participant(participant, file_name_list) -> list:
         team_name = participant['Team-Name']
         valid_music_nums_name_team = find_indices_for_matching_search_string(truncated_music_file_names, team_name)
 
-    valid_music_nums_bday = set()
-    if find_birthday:
-        bday = participant['Geburtstag']
-        valid_music_nums_bday = find_indices_for_matching_search_string(truncated_music_file_names, bday)
-        # bday = bday.replace('.','')
-        # valid_music_nums_bday = valid_music_nums_bday.union(find_indices_for_matching_search_string(truncated_music_file_names, bday))
-
-
-    valid_music_nums = valid_music_nums_name.union(valid_music_nums_name_partner.union(valid_music_nums_name_team.union(valid_music_nums_bday)))
+    valid_music_nums_names = valid_music_nums_name.union(valid_music_nums_name_partner.union(valid_music_nums_name_team))
     # find segment
-    valid_music_nums_segment = set()
-    for valid_music_num in valid_music_nums:
-        music_name = input_music_file_names[valid_music_num].upper()
+    if find_segment_type:
+        valid_music_nums_segment = set()
+        for valid_music_num in valid_music_nums_names:
+            music_name = truncated_music_file_names[valid_music_num].upper()
 
-        seg = str(participant['Segment-Abk.']).upper()
+            seg = str(participant['Segment-Abk.']).upper()
+            segs = []
 
-        if music_name.endswith(seg):
-            valid_music_nums_segment.add(valid_music_num)
-        else:
+            if seg:
+                segs.append(seg)
+
             if cat_type == 'D': # dance
                 if segment_type == 'S': # short
-                    segs = ['RD', 'RT', 'OD']
+                    segs.extend(['RD', 'RT', 'OD'])
                 elif segment_type == 'F': # free
-                    segs = ['FD', 'KT']
+                    segs.extend(['FD', 'KT'])
             else: # single, pairs and synchron
                 if segment_type == 'S': # short
-                    segs = ['SP', 'KP']
+                    segs.extend(['SP', 'KP'])
                 elif segment_type == 'F': # free
-                    segs = ['FS', 'KR', 'Kür', 'FP']
+                    segs.extend(['FS', 'KR', 'KUER', 'FP'])
             
             for seg in segs:
                 if music_name.endswith(seg):
                     valid_music_nums_segment.add(valid_music_num)
                     break
+    else: # find segment type
+        valid_music_nums_segment = valid_music_nums_names
+        
     # still ambiguous -> try to solve with intersections
+    valid_music_nums = set()
     if len(valid_music_nums_segment) > 1:
-        valid_music_nums = set()
         if find_name and valid_music_nums_name:
             valid_music_nums = valid_music_nums_name
             # for pairs, only family name should be sufficient
@@ -194,27 +211,18 @@ def find_file_name_for_participant(participant, file_name_list) -> list:
     if cat_type != 'S':
         name = participant['Team-Name']
     print('  ' + name + ' ' + music_log_string)
-
-    if valid_index is None:
-        return []
     
     # convert set to list
     files_found = [f for f in files_found]
     return files_found
+
+
 ########
 # main #
 ########
 
 if __name__ == "__main__":
     input_music_file_names_with_ext = os.listdir(input_dir)
-
-    input_music_file_names = []
-    input_music_file_exts = []
-    for music_file_name in input_music_file_names_with_ext:
-        music_file_name = unicodedata.normalize('NFC', unicodedata.normalize('NFD', music_file_name))
-        name, ext = os.path.splitext(music_file_name)
-        input_music_file_names.append(name)
-        input_music_file_exts.append(ext)
         
     categories = {}
     participants = []
@@ -287,16 +295,18 @@ if __name__ == "__main__":
 
                 playlist_dict = {}
 
-        participant_file_names = find_file_name_for_participant(participant, input_music_file_names_with_ext)
+        participant_file_names = find_file_name_for_participant(participant, input_music_file_names_with_ext, find_segment_type, force_segment_type)
 
-        if not participant_file_names or len(participant_file_names) == 0:
+        if not participant_file_names or len(participant_file_names) <= 0:
             count_missing += 1
             continue
-        elif len(participant_file_names) > 1:
+        elif len(participant_file_names) > 1: # multiple files found
             count_ambiguous += 1
             continue
-        else: # multiple files found
+        elif len(participant_file_names) == 1:
             count_found += 1
+        else:
+            continue
 
         files_found.update(set(participant_file_names))
         
