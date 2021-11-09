@@ -2,8 +2,8 @@ import xml.etree.ElementTree as ET
 import csv
 
 # settings / defines
-isucalcfs_xml_file_path = "ISUCalcFS-export/event_obm.xml"
-output_csv_file_path = "startreihenfolge_obm.csv"
+isucalcfs_xml_file_path = "OBM22/xml/211030-OBM22-008.XML"
+output_csv_file_path = "OBM22/csv/obm_starting_order_sa.csv"
 reverse_birthday_date_format = True # format switch for birthday output in CSV file; False -> YYYYMMDD; True -> DDMMYYYY
 
 

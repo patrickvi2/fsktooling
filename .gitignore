@@ -6,5 +6,6 @@
 *.mp3
 *.wma
 *.m3u
+*.pdf
 *.pyc
 __pycache__
