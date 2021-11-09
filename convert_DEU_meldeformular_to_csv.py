@@ -3,12 +3,10 @@ import csv
 import openpyxl
 
 # settings
-
 input_path = 'OBM22/csv/OBM' # file -> convert file only; folder -> convert all in folder
 
 
 # functions
-
 def create_csv_from_table_range(worksheet, min_row, max_row, output_csv_file_path, overwrite):
     header = []
     csv_content_list = []
@@ -31,6 +29,8 @@ def create_csv_from_table_range(worksheet, min_row, max_row, output_csv_file_pat
             writer = csv.DictWriter(f, fieldnames=header)
             writer.writeheader()
             writer.writerows(csv_content_list)
+    else:
+        print('Warning: File "%s" exists already. No csv file created. Set overwrite=True to overwrite a existing csv file.' % output_csv_file_path)
 
 def convert_meldeformular(input_file_path, create_categories, create_athletes, overwrite_output_files=True):
 
@@ -93,9 +93,10 @@ def convert_meldeformular_in_directory(input_directory, create_categories=True):
         create_categories = False
 
 # main script code
-if os.path.isfile(input_path):
-    convert_meldeformular(input_path, False, True)
-elif os.path.isdir(input_path):
-    create_categories = True # only for first xlsx
-    convert_meldeformular_in_directory(input_path)
+if __name__ == '__main__':
+    if os.path.isfile(input_path):
+        convert_meldeformular(input_path, True, True)
+    elif os.path.isdir(input_path):
+        create_categories = True # only for first xlsx
+        convert_meldeformular_in_directory(input_path, create_categories)
     
