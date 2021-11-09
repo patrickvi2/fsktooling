@@ -99,43 +99,43 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
         find_team_name = True
 
 
-    valid_music_nums_name = set()
-    valid_music_nums_family_name = set()
+    valid_file_idxs_name = set()
+    valid_file_idxs_family_name = set()
     if find_name:
         family_name = participant['Name']
         given_name = participant['Vorname']
-        valid_music_nums_name = find_indices_for_full_name(truncated_music_file_names, given_name, family_name)
+        valid_file_idxs_name = find_indices_for_full_name(truncated_file_names, given_name, family_name)
 
         # if name is ambiguous -> check, if b-day exists and instersect
-        valid_music_nums_bday = set()
-        if len(valid_music_nums_name) > 1 and find_birthday:
+        valid_file_idxs_bday = set()
+        if len(valid_file_idxs_name) > 1 and find_birthday:
             bday = participant['Geburtstag']
-            valid_music_nums_bday = find_indices_for_matching_search_string(truncated_music_file_names, bday)
-            if valid_music_nums_bday:
-                valid_music_nums_name_temp = valid_music_nums_name.intersection(valid_music_nums_bday)
-                if valid_music_nums_name_temp:
-                    valid_music_nums_name = valid_music_nums_name_temp
+            valid_file_idxs_bday = find_indices_for_matching_search_string(truncated_file_names, bday)
+            if valid_file_idxs_bday:
+                valid_file_idxs_name_temp = valid_file_idxs_name.intersection(valid_file_idxs_bday)
+                if valid_file_idxs_name_temp:
+                    valid_file_idxs_name = valid_file_idxs_name_temp
 
-        if not valid_music_nums_name:
-            valid_music_nums_family_name = find_indices_for_full_name(truncated_music_file_names, given_name, family_name, True)
+        if not valid_file_idxs_name:
+            valid_file_idxs_family_name = find_indices_for_full_name(truncated_file_names, given_name, family_name, True)
 
-    valid_music_nums_name_partner = set()
+    valid_file_idxs_name_partner = set()
     if find_name_partner:
         family_name = participant['Name-Partner']
         given_name = participant['Vorname-Partner']
-        valid_music_nums_name_partner = find_indices_for_full_name(truncated_music_file_names, given_name, family_name, True)
+        valid_file_idxs_name_partner = find_indices_for_full_name(truncated_file_names, given_name, family_name, True)
 
-    valid_music_nums_name_team = set()
+    valid_file_idxs_name_team = set()
     if find_team_name:
         team_name = participant['Team-Name']
-        valid_music_nums_name_team = find_indices_for_matching_search_string(truncated_music_file_names, team_name)
+        valid_file_idxs_name_team = find_indices_for_matching_search_string(truncated_file_names, team_name)
 
-    valid_music_nums_names = valid_music_nums_name.union(valid_music_nums_name_partner.union(valid_music_nums_name_team))
+    valid_file_idxs_names = valid_file_idxs_name.union(valid_file_idxs_name_partner.union(valid_file_idxs_name_team))
     # find segment
     if find_segment_type:
-        valid_music_nums_segment = set()
-        for valid_music_num in valid_music_nums_names:
-            music_name = truncated_music_file_names[valid_music_num].upper()
+        valid_file_idxs_segment = set()
+        for valid_file_idx in valid_file_idxs_names:
+            file_name = truncated_file_names[valid_file_idx].upper()
 
             seg = str(participant['Segment-Abk.']).upper()
             segs = []
@@ -155,56 +155,55 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
                     segs.extend(['FS', 'KR', 'KUER', 'FP'])
             
             for seg in segs:
-                if music_name.endswith(seg):
-                    valid_music_nums_segment.add(valid_music_num)
+                if file_name.endswith(seg):
+                    valid_file_idxs_segment.add(valid_file_idx)
                     break
     else: # find segment type
-        valid_music_nums_segment = valid_music_nums_names
+        valid_file_idxs_segment = valid_file_idxs_names
         
     # still ambiguous -> try to solve with intersections
-    valid_music_nums = set()
-    if len(valid_music_nums_segment) > 1:
-        if find_name and valid_music_nums_name:
-            valid_music_nums = valid_music_nums_name
+    valid_file_idxs = set()
+    if len(valid_file_idxs_segment) > 1:
+        if find_name and valid_file_idxs_name:
+            valid_file_idxs = valid_file_idxs_name
             # for pairs, only family name should be sufficient
-            if not valid_music_nums and find_name_partner:
-                valid_music_nums = valid_music_nums_family_name
-        if find_name_partner and valid_music_nums_name_partner:
-            if valid_music_nums:
-                valid_music_nums = valid_music_nums.intersection(valid_music_nums_name_partner)
+            if not valid_file_idxs and find_name_partner:
+                valid_file_idxs = valid_file_idxs_family_name
+        if find_name_partner and valid_file_idxs_name_partner:
+            if valid_file_idxs:
+                valid_file_idxs = valid_file_idxs.intersection(valid_file_idxs_name_partner)
             else:
-                valid_music_nums = valid_music_nums_name_partner
-        if find_birthday and valid_music_nums_bday:
-            if valid_music_nums:
-                valid_music_nums = valid_music_nums.intersection(valid_music_nums_bday)
+                valid_file_idxs = valid_file_idxs_name_partner
+        if find_birthday and valid_file_idxs_bday:
+            if valid_file_idxs:
+                valid_file_idxs = valid_file_idxs.intersection(valid_file_idxs_bday)
             else:
-                valid_music_nums = valid_music_nums_bday
+                valid_file_idxs = valid_file_idxs_bday
         if find_team_name:
-            if valid_music_nums:
-                valid_music_nums = valid_music_nums.intersection(valid_music_nums_name_team)
+            if valid_file_idxs:
+                valid_file_idxs = valid_file_idxs.intersection(valid_file_idxs_name_team)
             else:
-                valid_music_nums = valid_music_nums_name_team
-        valid_music_nums = valid_music_nums.intersection(valid_music_nums_segment)
+                valid_file_idxs = valid_file_idxs_name_team
+        valid_file_idxs = valid_file_idxs.intersection(valid_file_idxs_segment)
     else:
-        valid_music_nums = valid_music_nums_segment
+        valid_file_idxs = valid_file_idxs_segment
 
-    valid_music_count = len(valid_music_nums)
+    valid_file_count = len(valid_file_idxs)
 
     files_found = set()
-    valid_index = None
-    if valid_music_count < 1:
-        music_log_string = '\033[31m## missing ##\033[0m'
-    elif valid_music_count > 1:
-        music_log_string = '\033[35m## ambiguous ##\033[0m ('
-        for valid_music_num in valid_music_nums:
-            music_log_string += input_music_file_names_with_ext[valid_music_num] + ','
-            files_found.add(input_music_file_names_with_ext[valid_music_num])
-        music_log_string += ')'
+    if valid_file_count < 1:
+        log_string = '\033[31m## missing ##\033[0m'
+    elif valid_file_count > 1:
+        log_string = '\033[35m## ambiguous ##\033[0m ('
+        for valid_file_idx in valid_file_idxs:
+            log_string += input_file_names_with_ext[valid_file_idx] + ','
+            files_found.add(input_file_names_with_ext[valid_file_idx])
+        log_string += ')'
     else:
-        # music found
-        valid_index = valid_music_nums.pop() # there is only one element
-        music_log_string = '(\033[32m## found ##\033[0m ' + input_music_file_names_with_ext[valid_index] + ')'
-        files_found.add(input_music_file_names_with_ext[valid_index])
+        # file found
+        valid_index = valid_file_idxs.pop() # there is only one element
+        log_string = '(\033[32m## found ##\033[0m ' + input_file_names_with_ext[valid_index] + ')'
+        files_found.add(input_file_names_with_ext[valid_index])
 
     name = participant['Name'] + ', ' + participant['Vorname']
     # use team name for couples or teams
@@ -222,7 +221,7 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
 ########
 
 if __name__ == "__main__":
-    input_music_file_names_with_ext = os.listdir(input_dir)
+    input_file_names_with_ext = os.listdir(input_dir)
         
     categories = {}
     participants = []
@@ -295,7 +294,7 @@ if __name__ == "__main__":
 
                 playlist_dict = {}
 
-        participant_file_names = find_file_name_for_participant(participant, input_music_file_names_with_ext, find_segment_type, force_segment_type)
+        participant_file_names = find_file_name_for_participant(participant, input_file_names_with_ext, find_segment_type, force_segment_type)
 
         if not participant_file_names or len(participant_file_names) <= 0:
             count_missing += 1
@@ -332,19 +331,19 @@ if __name__ == "__main__":
         else:
             output_file_name += input_file_name
 
-        output_music_file_dir =os.path.join(output_root_dir, cat_name, segment_abbr)
+        output_music_file_dir = os.path.join(output_root_dir, cat_name, segment_abbr)
         output_music_file_path = os.path.join(output_music_file_dir, output_file_name)
         
-        # copy music file
+        # copy file
         if should_copy_files:
-            shutil.copy(input_file_path, output_music_file_path)
+            shutil.copy(input_file_path, output_file_path)
 
         if should_create_m3u_playlist and skating_number:
             n = int(skating_number)
             if playlist_dict:
                 playlist_dict['names'][n] = output_file_name
             else:
-                playlist_dict = {'dir' : output_music_file_dir,
+                playlist_dict = {'dir' : output_file_dir,
                                 'names' : {n : output_file_name}
                                 }
 
@@ -355,8 +354,8 @@ if __name__ == "__main__":
     print('Found: ' + str(count_found) + '(' + str(len(participants)) + ')')
     print('Missing: ' + str(count_missing) + '(' + str(len(participants)) + ')')
     print('Ambiguous: ' + str(count_ambiguous) + '(' + str(len(participants)) + ')')
-    print('Files: ' + str(len(input_music_file_names_with_ext)))
+    print('Files: ' + str(len(input_file_names_with_ext)))
     print('Unused files:')
-    for input_file_name in input_music_file_names_with_ext:
+    for input_file_name in input_file_names_with_ext:
         if input_file_name not in files_found:
             print(input_file_name)
