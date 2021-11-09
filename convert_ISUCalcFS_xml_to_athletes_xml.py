@@ -1,12 +1,18 @@
+# extract all athletes from a ISUCalcFS event xml
+# correct gender for male categories, if possible
+# 
+# *** intended workflow ***
+# fill DEU Meldeformular
+# check DEU Meldeformular with http://deu-info.de/datenassistent/excel-validieren
+# download generated ISUCalcFS event xml
+# extract all athletes from ISUCalcFS export from DEU datenassistent
+
 import xml.etree.ElementTree as ET
 
 
 # defines
-
-input_xml_file_path = 'DEU-Datenassisten-export/toIsuCalcFS.xml'
-output_xml_file_path = 'DEU-Datenassisten-export/out2.xml'
-# input_xml_file_path = '/Users/Brummi/VirtualBox VMs/XChange/OBM20/OBM_from_deu_datenassistent_export.XML'
-# output_xml_file_path = '/Users/Brummi/VirtualBox VMs/XChange/OBM20/OBM_from_deu_datenassistent_export_fixed2.XML'
+input_xml_file_path = './toIsuCalcFS.xml'
+output_xml_file_path = './athletes.xml'
 
 
 # code
