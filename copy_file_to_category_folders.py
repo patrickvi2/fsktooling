@@ -5,30 +5,22 @@ import unicodedata
 # defines
 
 ############
-if False:
     file_type = 'Musiken'
     find_segment_type = True
 else:
     file_type = 'PPCS'
     find_segment_type = False
 
-force_segment_type = 'S' # S -> short or rhythm dance; F -> free skating/ dance
-input_csv_file_path = './OBM22/csv/participants.csv'
-input_dir = '/Volumes/MANNI/' + file_type + '/2 - Name korrigiert'
-output_root_dir = '/Volumes/MANNI/' + file_type + '/3 - sortiert'
 
 
-if True: # check
     should_create_directory_structure = False
     should_copy_files = False
-    should_rename_files = True
     should_add_skating_number_to_file_name = False
     should_create_m3u_playlist = False # one playlist per category and segment
 else: # copy
     should_create_directory_structure = True
     should_copy_files = True
     should_rename_files = True
-    should_add_skating_number_to_file_name = False
     should_create_m3u_playlist = False # one playlist per category and segment
 
 # code
