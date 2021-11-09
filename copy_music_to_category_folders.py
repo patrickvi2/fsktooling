@@ -72,17 +72,13 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
     segment_name = participant['Segment-Name']
     segment_type = participant['Segment-Typ']
 
-    truncated_music_file_names = [normalize_string(os.path.splitext(s)[0]) for s in file_name_list]
+    truncated_file_names = [normalize_string(os.path.splitext(s)[0]) for s in file_name_list]
 
     if force_segment_type:
         if not segment_type:
             segment_type = force_segment_type
         elif segment_type != force_segment_type:
             return []
-
-    # copy no music for pattern dances
-    if segment_type == 'D':
-        return []
 
     find_name = False
     find_name_partner = False
@@ -209,7 +205,7 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
     # use team name for couples or teams
     if cat_type != 'S':
         name = participant['Team-Name']
-    print('  ' + name + ' ' + music_log_string)
+    print('  ' + name + ' (' + participant['Nation'] + '/' + participant['Club-Abk.'] + ') ' + log_string)
     
     # convert set to list
     files_found = [f for f in files_found]
@@ -257,6 +253,7 @@ if __name__ == "__main__":
     # create folder structure
     if should_create_directory_structure:
         for cat_name, cat_data in categories.items():
+            cat_name = cat_name.replace(' ', '').replace('ä', 'ae')
             category_dir = os.path.join(output_root_dir, cat_name)
             if not os.path.isdir(category_dir):
                 os.mkdir(category_dir)
@@ -271,6 +268,7 @@ if __name__ == "__main__":
     cat_name_old = ''
     seg_name_old = ''
     playlist_dict = {}
+    participants_out = []
     for participant in participants:
         cat_name = participant['Kategorie-Name']
         cat_type = participant['Kategorie-Typ']
@@ -296,6 +294,10 @@ if __name__ == "__main__":
 
         participant_file_names = find_file_name_for_participant(participant, input_file_names_with_ext, find_segment_type, force_segment_type)
 
+
+        participant['Status'] = ''
+        participant['Musik'] = ''
+        participants_out.append(participant)
         if not participant_file_names or len(participant_file_names) <= 0:
             count_missing += 1
             continue
@@ -320,19 +322,24 @@ if __name__ == "__main__":
         # add skating number
         output_file_name = ''
         if should_add_skating_number_to_file_name:
-            output_file_name = str(skating_number) + ' - '
+            output_file_name = '%02d-' % int(skating_number)
         if should_rename_files:
             name = participant['Vorname'] + '-' + participant['Name']
             # use team name for couples or teams
             if cat_type != 'S':
                 name = participant['Team-Name'].replace(' ', '-').replace('/','-')
 
-            output_file_name += cat_name + '-' + name.strip() + input_file_name_ext
+            name = normalize_string(name)
+            output_file_name += name.strip() + input_file_name_ext
         else:
             output_file_name += input_file_name
 
-        output_music_file_dir = os.path.join(output_root_dir, cat_name, segment_abbr)
-        output_music_file_path = os.path.join(output_music_file_dir, output_file_name)
+        cat_name = cat_name.replace(' ', '').replace('ä', 'ae')
+        if ignore_segement_in_output_structure:
+            output_file_dir = os.path.join(output_root_dir, cat_name)
+        else:
+            output_file_dir = os.path.join(output_root_dir, cat_name, segment_abbr)
+        output_file_path = os.path.join(output_file_dir, output_file_name)
         
         # copy file
         if should_copy_files:
@@ -347,6 +354,7 @@ if __name__ == "__main__":
                                 'names' : {n : output_file_name}
                                 }
 
+        participant['Musik'] = output_file_name
 
     # print statistical data
     print('###########')
@@ -359,3 +367,13 @@ if __name__ == "__main__":
     for input_file_name in input_file_names_with_ext:
         if input_file_name not in files_found:
             print(input_file_name)
+
+
+    if participants_out:
+        fieldnames = participants_out[0].keys()
+        output_file_path = os.path.join(output_root_dir, 'participants.csv')
+        with open(output_file_path, 'w') as csv_file:
+            print("Writing csv file '%s'\n" %  output_file_path)
+            writer = csv.DictWriter(csv_file, fieldnames)
+            writer.writeheader()
+            writer.writerows(participants_out)
