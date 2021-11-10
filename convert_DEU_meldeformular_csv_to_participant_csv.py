@@ -11,7 +11,7 @@ output_participant_file_path = './OBM22/csv/participants.csv'
 
 deu_type_to_isucalcfs = {'Herren' : 'S', 'Damen' : 'S', 'Einzellauf': 'S', 'Paarlaufen' : 'P', 'Eistanzen' : 'D', 'Synchron': 'T'}
 deu_gender_to_isucalcfs = {'Herren' : 'M', 'Damen' : 'F', 'Einzellauf': 'F', 'Paarlaufen' : 'T', 'Eistanzen' : 'T', 'Synchron': 'T'}
-deu_level_to_isucalcfs = {'Meisterklasse' : 'S', 'Juniorenklasse' : 'J', 'Jugendklasse' : 'J', 'Nachwuchsklasse' : 'V'}
+deu_level_to_isucalcfs = {'Meisterklasse' : 'S', 'Juniorenklasse' : 'J', 'Jugendklasse' : 'J', 'Nachwuchsklasse' : 'V', 'nicht definiert' : 'O'} # Intermediate Novice => I; Basic Novice => R
 
 def convert(input_participants, input_clubs, input_categories, output_athletes_file_path, output_participant_file_path):
 
@@ -87,15 +87,16 @@ def convert(input_participants, input_clubs, input_categories, output_athletes_f
                     break
                 check_field_names = False
 
-            par_category = par['Wettbewerb/Prüfung']
-            par_team_id = par['Team ID']
-            par_team_name = par['Team Name']
-            par_id = par['ID ( ehm. Sportpassnr.)']
-            par_family_name = par['Name']
-            par_first_name = par['Vorname']
-            par_bday = datetime.datetime.fromisoformat(par['Geb. Datum']) if par['Geb. Datum'] else None
-            par_club_abbr = par['Vereinskürzel']
-            par_place_status = par['Platz/Status']
+            par_category = par['Wettbewerb/Prüfung'].strip()
+            par_team_id = par['Team ID'].strip()
+            par_team_name = par['Team Name'].strip()
+            par_id = par['ID ( ehm. Sportpassnr.)'].strip()
+            par_family_name = par['Name'].strip()
+            par_first_name = par['Vorname'].strip()
+            par_bday = par['Geb. Datum'].strip()
+            par_bday = datetime.datetime.fromisoformat(par_bday) if par_bday else None
+            par_club_abbr = par['Vereinskürzel'].strip()
+            par_place_status = par['Platz/Status'].strip()
 
             cat = {}
             if par_category in categories_dict:
@@ -113,22 +114,21 @@ def convert(input_participants, input_clubs, input_categories, output_athletes_f
             couple_found_id = 0
             if cat_type in ['P', 'D']:
                 if par_team_id:
-                    par_team_id_trimmed = par_team_id.strip()
-                    if par_team_id_trimmed.endswith(str(par_id)): # team id ends with male team id
+                    if par_team_id.endswith(str(par_id)): # team id ends with male team id
                         par_gender = 'M'
-                    elif par_team_id_trimmed.startswith(str(par_id)):
+                    elif par_team_id.startswith(str(par_id)):
                         par_gender = 'F'
                     else:
                         print("Error: Unable to add couple. ID cannot be found in team id for following participant: %s" % str(par))
                         continue
 
-                    if par_team_id_trimmed not in couple_dict:
-                        couple_dict[par_team_id_trimmed] = {}
+                    if par_team_id not in couple_dict:
+                        couple_dict[par_team_id] = {}
                         next_is_male_partner = True
                     else:
                         next_is_male_partner = False
-                        couple_found_id = par_team_id_trimmed
-                    couple_dict[par_team_id_trimmed][par_gender] = par
+                        couple_found_id = par_team_id
+                    couple_dict[par_team_id][par_gender] = par
                 else: # no team id set -> assume: first is female, second is male
                     if next_is_male_partner:
                         par_gender = 'M'
