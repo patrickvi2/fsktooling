@@ -64,8 +64,8 @@ def find_indices_for_full_name(string_list : list, given_name : str, family_name
     name = family_name + given_name
     valid_idx_set =  valid_idx_set.union(find_indices_for_matching_search_string(string_list, name))
 
-    if not valid_idx_set and check_family_name_only:
-        valid_idx_set = find_indices_for_matching_search_string(string_list, family_name)
+    if check_family_name_only:
+        valid_idx_set = valid_idx_set.union(find_indices_for_matching_search_string(string_list, family_name))
     
     return valid_idx_set
 
@@ -117,7 +117,7 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
                 if valid_file_idxs_name_temp:
                     valid_file_idxs_name = valid_file_idxs_name_temp
 
-        if not valid_file_idxs_name:
+        if not valid_file_idxs_name or cat_type == 'P' or cat_type == 'D':
             valid_file_idxs_family_name = find_indices_for_full_name(truncated_file_names, given_name, family_name, True)
 
     valid_file_idxs_name_partner = set()
@@ -168,7 +168,7 @@ def find_file_name_for_participant(participant, file_name_list, find_segment_typ
         if find_name and valid_file_idxs_name:
             valid_file_idxs = valid_file_idxs_name
             # for pairs, only family name should be sufficient
-            if not valid_file_idxs and find_name_partner:
+            if find_name_partner:
                 valid_file_idxs = valid_file_idxs_family_name
         if find_name_partner and valid_file_idxs_name_partner:
             if valid_file_idxs:

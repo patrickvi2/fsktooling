@@ -15,11 +15,15 @@ deu_level_to_isucalcfs = {'Meisterklasse' : 'S', 'Juniorenklasse' : 'J', 'Jugend
 
 def convert(input_participants, input_clubs, input_categories, output_athletes_file_path, output_participant_file_path):
 
-    if not os.path.isfile(input_participants) or \
-       not os.path.isfile(input_DEU_club_csv_file_path) or \
-       not os.path.isfile(input_DEU_categories_csv_file_path):
-        print('Not all files found.')
+    if not os.path.isfile(input_participants):
+        print('Participants file not found.')
         return 1
+    if not os.path.isfile(input_clubs):
+        print('Club file not found.')
+        return 2
+    if not os.path.isfile(input_categories):
+        print('Categories file not found.')
+        return 3
     
     # read clubs
     try:
