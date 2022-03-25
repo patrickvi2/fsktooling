@@ -3,9 +3,11 @@
 *.zip
 *.xml
 *.xlsx
-*.mp3
+*.mp*
 *.wma
 *.m3u
+*.wav
+*.m4a
 *.pdf
 *.pyc
 __pycache__
