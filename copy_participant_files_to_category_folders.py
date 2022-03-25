@@ -1,6 +1,7 @@
 import os, shutil
 import csv
 import unicodedata
+import string
 
 # defines
 
@@ -38,10 +39,26 @@ else: # copy
 
 # code
 
+# return a valid directory / filename that can be stored to disc
+def valid_filename(filename):
+    filename = filename.replace(' ', '_').replace('/','-').replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue')
+
+    whitelist = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    char_limit = 255
+    # keep only valid ascii chars
+    cleaned_filename = unicodedata.normalize('NFKD', filename).encode('ASCII', 'ignore').decode()
+    
+    # keep only whitelisted chars
+    cleaned_filename = ''.join(c for c in cleaned_filename if c in whitelist)
+    if len(cleaned_filename)>char_limit:
+        print("Warning, filename truncated because it was over {}. Filenames may no longer be unique".format(char_limit))
+    return cleaned_filename[:char_limit]
+
+# remove spaces, dashes, dots, commas and underscores in strings to make them comparable
 def normalize_string(s : str):
-    # remove spaces, dashes, dots, commas and underscores in file names
     translation_table = str.maketrans('','',' -_.,')
 
+    # normalize unicode characters, remove characters, lowercase, ä -> ae, ö -> oe, ü -> ue
     return unicodedata.normalize('NFC', unicodedata.normalize('NFD', s)).translate(translation_table).casefold().replace('ä', 'ae').replace('ö', 'oe').replace('ü', 'ue')
 
 
@@ -258,7 +275,7 @@ if __name__ == "__main__":
     # create folder structure
     if should_create_directory_structure:
         for cat_name, cat_data in categories.items():
-            cat_name = cat_name.replace(' ', '').replace('ä', 'ae')
+            cat_name = valid_filename(cat_name)
             category_dir = os.path.join(output_root_dir, cat_name)
             if not os.path.isdir(category_dir):
                 os.mkdir(category_dir)
@@ -339,11 +356,11 @@ if __name__ == "__main__":
         else:
             output_file_name += input_file_name
 
-        cat_name = cat_name.replace(' ', '').replace('ä', 'ae')
+        cat_dir_name = valid_filename(cat_name)
         if ignore_segement_in_output_structure:
-            output_file_dir = os.path.join(output_root_dir, cat_name)
+            output_file_dir = os.path.join(output_root_dir, cat_dir_name)
         else:
-            output_file_dir = os.path.join(output_root_dir, cat_name, segment_abbr)
+            output_file_dir = os.path.join(output_root_dir, cat_dir_name, segment_abbr)
         output_file_path = os.path.join(output_file_dir, output_file_name)
         
         # copy file
