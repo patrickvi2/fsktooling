@@ -280,6 +280,9 @@ if __name__ == "__main__":
             if not os.path.isdir(category_dir):
                 os.mkdir(category_dir)
 
+            if ignore_segement_in_output_structure:
+                continue
+
             for seg in cat_data['segments']:
                 segment_dir = os.path.join(category_dir, seg)
                 if not os.path.isdir(segment_dir):
