@@ -1,5 +1,5 @@
 import os
-import datetime
+from  datetime import datetime
 import traceback
 import csv
 from typing import List
@@ -18,11 +18,13 @@ output_odf_participant_file_path = './BJM22Test/DT_PARTIC_UPDATE.xml'
 
 class DeuMeldeformularConverter:
     # static member
-    deu_type_to_isucalcfs = {'Herren' : 'S', 'Damen' : 'S', 'Einzellauf': 'S', 'Paarlaufen' : 'P', 'Eistanzen' : 'D', 'Synchron': 'T'}
-    deu_gender_to_isucalcfs = {'Herren' : 'M', 'Damen' : 'F', 'Einzellauf': 'F', 'Paarlaufen' : 'T', 'Eistanzen' : 'T', 'Synchron': 'T'}
-    deu_level_to_isucalcfs = {'Meisterklasse' : 'S', 'Juniorenklasse' : 'J', 'Jugendklasse' : 'J', 'Nachwuchsklasse' : 'V', 'nicht definiert' : 'O'} # Intermediate Novice => I; Basic Novice => R
+    deu_category_to_gender = {'Herren' : model.Gender.MALE, 'Damen' : model.Gender.FEMALE, 'Einzellauf': model.Gender.FEMALE, 'Paarlaufen' : model.Gender.TEAM, 'Eistanzen' : model.Gender.TEAM, 'Synchron': model.Gender.TEAM}
+    
+    def __init__(self) -> None:
+        self.unknown_ids = { '888888' : 0, '999999' : 0 }
+    
 
-    def convert(input_participants: str, input_clubs: str, input_categories: str, outputs: List[output.OutputBase]):
+    def convert(self, input_participants: str, input_clubs: str, input_categories: str, outputs: List[output.OutputBase]):
         if not os.path.isfile(input_participants):
             print('Participants file not found.')
             return 1
@@ -58,17 +60,18 @@ class DeuMeldeformularConverter:
                 cat_deu_type = cat_dict['Disziplin']
                 cat_deu_level = cat_dict['Kategorie']
                 
-                cat_type = DeuMeldeformularConverter.deu_type_to_isucalcfs[cat_deu_type] if cat_deu_type in DeuMeldeformularConverter.deu_type_to_isucalcfs else ''
-                cat_gender = DeuMeldeformularConverter.deu_gender_to_isucalcfs[cat_deu_type] if cat_deu_type in DeuMeldeformularConverter.deu_gender_to_isucalcfs else ''
-                cat_level = DeuMeldeformularConverter.deu_level_to_isucalcfs[cat_deu_level] if cat_deu_level in DeuMeldeformularConverter.deu_level_to_isucalcfs else ''
+                cat_type = model.CategoryType.from_value(cat_deu_type, model.DataSource.DEU)
+                cat_gender = DeuMeldeformularConverter.deu_category_to_gender[cat_deu_type] if cat_deu_type in DeuMeldeformularConverter.deu_category_to_gender else model.Gender.FEMALE
+                cat_level = model.CategoryLevel.from_value(cat_deu_level, model.DataSource.DEU)
 
                 if not cat_type or not cat_gender or not cat_level:
                     print('Warning: Unable to convert category following %s|%s|%s' % (cat_name, cat_name, cat_level))
                 else:
                     categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender)
                     # categories_dict[cat_name] = {'Kategorie-Name' : cat_name, 'Kategorie-Typ' : cat_type, 'Kategorie-Geschlecht': cat_gender, 'Kategorie-Level': cat_level}
-        except:
+        except Exception as e:
             print('Error while converting categories.')
+            print(e)
         finally:
             cats_file.close()
             
@@ -105,10 +108,18 @@ class DeuMeldeformularConverter:
                 par_family_name = athlete['Name'].strip()
                 par_first_name = athlete['Vorname'].strip()
                 par_bday = athlete['Geb. Datum'].strip()
-                par_bday = datetime.datetime.fromisoformat(par_bday) if par_bday else None
+                par_bday = datetime.fromisoformat(par_bday).date() if par_bday else None
                 par_club_abbr = athlete['Vereinskürzel'].strip()
                 par_place_status = athlete['Platz/Status'].strip()
                 par_points = athlete['Punkte'].strip()
+
+                if not par_id:
+                    par_id = '888888'
+
+                if par_id in self.unknown_ids:
+                    offset = self.unknown_ids[par_id]
+                    self.unknown_ids[par_id] += 1
+                    par_id = str(int(par_id) + offset)
 
                 cat = None
                 if par_category in categories_dict:
@@ -122,31 +133,30 @@ class DeuMeldeformularConverter:
                 cat_level = cat.level
 
                 # guess athlete gender
-                par_gender = 'F'
                 couple_found = False
-                if cat_type in ['P', 'D']:
+                if cat_type in [model.CategoryType.PAIRS, model.CategoryType.ICEDANCE]:
                     if par_team_id:
                         if par_team_id.endswith(str(par_id)): # team id ends with male team id
-                            par_gender = 'M'
+                            par_gender = model.Gender.MALE
                         elif par_team_id.startswith(str(par_id)):
-                            par_gender = 'F'
+                            par_gender = model.Gender.FEMALE
                         else:
                             print("Error: Unable to add couple. ID cannot be found in team id for following participant: %s" % str(athlete))
                             continue
-                        if next_is_male_partner and par_gender == 'M':
+                        if next_is_male_partner and par_gender == model.Gender.MALE:
                             par_id_last = athlete_last['ID ( ehm. Sportpassnr.)'].strip()
                             if par_team_id.startswith(par_id_last):
                                 couple_found = True
                         next_is_male_partner = False
                     else: # no team id set -> assume: first is female, second is male
                         if next_is_male_partner:
-                            par_gender = 'M'
+                            par_gender = model.Gender.MALE
                             next_is_male_partner = False
                             couple_found = True
                         else:
                             next_is_male_partner = True
                 else:
-                    if cat_type != 'T': # single skater -> use category gender
+                    if cat_gender != model.Gender.TEAM: # single skater -> use category gender
                         par_gender = cat_gender
                     if next_is_male_partner:
                         print('Error: Skipping athlete. No partner can be found for: %s' % str(athlete_last))
@@ -169,10 +179,10 @@ class DeuMeldeformularConverter:
                 # add participants
                 par = None
 
-                if cat_type == 'S':
+                if cat_type in [model.CategoryType.MEN, model.CategoryType.WOMEN]:
                     par = model.ParticipantSingle(person, cat)
                 else: # couple or team
-                    if cat_type == 'T': # Synchron
+                    if cat_type == model.CategoryType.SYNCHRON:
                         if par_team_id in team_dict:
                             team_dict[par_team_id].team.persons.append(person)
                         else:
@@ -191,20 +201,20 @@ class DeuMeldeformularConverter:
                             par_female_family_name = athlete_last['Name']
                             par_female_club_abbr = athlete_last['Vereinskürzel']
                             par_female_bday = athlete_last['Geb. Datum'].strip()
-                            par_female_bday = datetime.datetime.fromisoformat(par_female_bday) if par_female_bday else None
+                            par_female_bday = date.fromisoformat(par_female_bday).date if par_female_bday else None
                             par_team_id = par_female_id + '-' + par_id
                             person_female = model.Person(par_female_id, par_female_family_name, par_female_first_name, 'F', par_female_bday, club_dict[par_female_club_abbr])
                             couple = model.Couple(person_female, None)
                             couple_found = False
                         elif par_team_id not in couple_dict:
-                            if par_gender == 'M':
+                            if par_gender == model.Gender.MALE:
                                 couple = model.Couple(None, person)
                             else:
                                 couple = model.Couple(person, None)
                         if couple:
                             couple_dict[par_team_id] = model.ParticipantCouple(couple, cat)
                         
-                        if par_gender == 'M':
+                        if par_gender == model.Gender.MALE:
                             couple_dict[par_team_id].couple.partner_2 = person
                         else:
                             couple_dict[par_team_id].couple.partner_1 = person
@@ -242,9 +252,9 @@ class DeuMeldeformularConverter:
             pars_file.close()
 
 if __name__ == '__main__':
-    exit(DeuMeldeformularConverter.convert(input_DEU_participant_csv_file_path, 
-                                           input_DEU_club_csv_file_path, 
-                                           input_DEU_categories_csv_file_path, [
+    exit(DeuMeldeformularConverter().convert(input_DEU_participant_csv_file_path, 
+                                             input_DEU_club_csv_file_path, 
+                                             input_DEU_categories_csv_file_path, [
                                                 output.PersonCsvOutput(output_athletes_file_path),
                                                 output.ParticipantCsvOutput(output_participant_file_path),
                                                 output.OdfParticOutput(output_odf_participant_file_path)
