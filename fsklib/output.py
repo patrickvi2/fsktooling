@@ -2,6 +2,7 @@ import csv
 from datetime import date, datetime
 import pathlib
 import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 from . import model
 
@@ -12,9 +13,9 @@ class OutputBase:
         self.path = file_path
     def add_event_info(self, competition_info: model.Competition) -> None:
         raise NotImplementedError()
-    def add_person(self) -> None:
+    def add_person(self, model: model.Person) -> None:
         raise NotImplementedError()
-    def add_participant(self) -> None:
+    def add_participant(self, participant: model.ParticipantBase) -> None:
         raise NotImplementedError()
     def write_file(self) -> None:
         raise NotImplementedError()
@@ -77,7 +78,7 @@ class ParticipantCsvOutput(OutputBase):
             output['Segment-Name'] = segment.name
             output['Segment-Abk.'] = segment.abbr
             output['Segment-Typ'] = segment.type.CALC()
-        
+
         if start_number:
             output['Startnummer'] = start_number
 
@@ -99,9 +100,9 @@ class ParticipantCsvOutput(OutputBase):
             output['Vorname-Partner'] = p2.first_name
             output['Name-Partner'] = p2.family_name
             par_team_name = '%s %s / %s %s' % (
-                p1.first_name, 
-                p1.family_name, 
-                p2.first_name, 
+                p1.first_name,
+                p1.family_name,
+                p2.first_name,
                 p2.family_name)
             output['Team-Name'] = par_team_name
 
@@ -160,11 +161,12 @@ class OdfParticOutput(OutputBase):
         self.competition_elem_couples = ET.Element("Competition")
         self.disciplin = "FSK" + 31 * "-"
         self.accreditation_id = 1
+        self.competition = None
 
-    def add_event_info(self, competiton_info: model.Competition):
+    def add_event_info(self, competiton_info: model.Competition) -> None:
         self.competition = competiton_info
-    
-    def add_participant(self, participant: model.ParticipantBase):
+
+    def add_participant(self, participant: model.ParticipantBase) -> None:
         category = participant.cat
 
         # skip adding persons to a category / segment, if it is not a ISU category
@@ -193,7 +195,7 @@ class OdfParticOutput(OutputBase):
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "1", "Value" : person.club.name}})
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "2", "Value" : person.club.abbr}})
             accreditation_ids.append(par_elem.get('Code'))
-        
+
         if type(participant) == model.ParticipantCouple:
             first1 = participant.couple.partner_1.first_name
             l = str('test').split()
@@ -205,7 +207,7 @@ class OdfParticOutput(OutputBase):
             nation = participant.couple.partner_1.club.nation
             if participant.couple.partner_1.club.nation != participant.couple.partner_2.club.nation:
                 nation += "/" + participant.couple.partner_2.club.nation
-            
+
             team_attrib = {
                 "Code" : str(self.accreditation_id),
                 "Organisation" : nation,
@@ -228,7 +230,7 @@ class OdfParticOutput(OutputBase):
 
             dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
-            
+
             self.accreditation_id += 1
         if type(participant) == model.ParticipantTeam:
             team_attrib = {
@@ -255,8 +257,7 @@ class OdfParticOutput(OutputBase):
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "2", "Value" : participant.team.club.abbr}})
             self.accreditation_id += 1
 
-
-    def add_person(self, person: model.Person):
+    def add_person(self, person: model.Person) -> None:
         first = person.first_name
         last = person.family_name
         participant_attrib = {
@@ -288,7 +289,7 @@ class OdfParticOutput(OutputBase):
             date = now.strftime("%Y-%m-%d")
             time = now.strftime("%H%M%S%f")[:9]
             competition_attrib = {
-                "CompetitionCode" : self.competition.name,
+                "CompetitionCode" : self.competition.name if self.competition else "Test",
                 "DocumentCode" : self.disciplin,
                 "DocumentType" : "DT_PARTIC",
                 "Version" : "1",
@@ -298,14 +299,21 @@ class OdfParticOutput(OutputBase):
                 "LogicalDate" : date,
                 "Source" : "FSKFSK1"
             }
+
+            def write_xml(path: pathlib.Path, root: ET.Element, name: str) -> None:
+                xmlstr = minidom.parseString(ET.tostring(root, xml_declaration= True)).toprettyxml(indent="  ")
+                with open(str(path / name), "w", encoding="utf-8") as f:
+                    f.write(xmlstr)
+
             root = ET.Element("OdfBody", competition_attrib)
             root.insert(0, self.competition_elem)
-            ET.ElementTree(root).write(self.path / "DT_PARTIC.xml", encoding="utf-8", xml_declaration=True)
+            write_xml(self.path, root, "DT_PARTIC.xml")
 
             competition_attrib["DocumentType"] = "DT_PARTIC_TEAMS"
             root = ET.Element("OdfBody", competition_attrib)
             root.insert(0, self.competition_elem_couples)
-            ET.ElementTree(root).write(self.path / "DT_PARTIC_TEAMS.xml", encoding="utf-8", xml_declaration=True)
+            write_xml(self.path, root, "DT_PARTIC_TEAMS.xml")
+
         else:
             print("OdfParticOutput: No persons found for writing. Skip creating file.")
 
