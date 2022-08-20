@@ -45,8 +45,7 @@ class TextHandler(logging.Handler):
         # This is necessary because we can't modify the Text from other threads
         self.text.after(0, append)
 
-class myGUI(tk.Frame):
-
+class converterUI(tk.Frame):
     # This class defines the graphical user interface 
 
     def __init__(self, parent, *args, **kwargs):
@@ -70,13 +69,6 @@ class myGUI(tk.Frame):
 
     def file_dialog_set_text(self, file_extensions, file_type):
         self.file_dialog(file_extensions, file_type, self.open_xlsx)
-
-    def file_input(self, root, file_extensions, file_type, button_text='Auswählen'):
-        self.input = tk.Text(root, height=1)
-        self.input.grid(column=0, row=0, sticky='nsew')
-        self.input.insert('1.0', 'DEU Meldeformular (.xlsx)')
-        button = ttk.Button(root, text=button_text, command=lambda: self.file_dialog_set_text(file_extensions, file_type) )
-        button.grid(column=1, row=0, sticky='nsew', padx=10)
 
     def logic(self):
         if not self.input_xlsx_path:
@@ -126,21 +118,24 @@ class myGUI(tk.Frame):
 
     def build_gui(self):
         # Build GUI
-        # self.root.title('TEST')
-        self.root.title('Konvertiere DEUMeldeformular')
+        ui_name = pathlib.Path(__file__).stem
+        self.root.title(ui_name)
         self.root.option_add('*tearOff', 'FALSE')
-        self.grid(column=0, row=0, sticky='nsew')
         self.pack(fill = 'both', expand = True, padx = 10, pady = 10)
-        # self.grid_columnconfigure(0, weight=1, uniform='a')
-        # self.grid_columnconfigure(1, weight=1, uniform='a')
-        # self.grid_columnconfigure(2, weight=1, uniform='a')
-        # self.grid_columnconfigure(3, weight=1, uniform='a')
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(2, weight=1)
 
         file_extensions = (
             ('Excel-Datei', '*.xlsx'),
             ('All files', '*.*')
         )
-        self.file_input(self, file_extensions, 'r')
+
+        self.input = tk.Text(self, height=1)
+        self.input.pack(expand=True)
+        self.input.grid(column=0, row=0, sticky='nsew')
+        self.input.insert('1.0', 'DEU Meldeformular (.xlsx)')
+        button = ttk.Button(self, text="Auswählen", command=lambda: self.file_dialog_set_text(file_extensions, "r") )
+        button.grid(column=1, row=0, sticky='nsew', padx=10)
 
         label = tk.Label(self, text="Log-Ausgabe")
         label.grid(column=0, row=1, sticky='nw')
@@ -148,13 +143,16 @@ class myGUI(tk.Frame):
         # Add text widget to display logging info
         st = ScrolledText.ScrolledText(self, state='disabled')
         st.configure(font='TkFixedFont')
-        st.grid(column=0, row=2, sticky='nsew', columnspan=4)
+        st.grid(column=0, row=2, sticky='nsew', columnspan=2)
+
+        button_convert = ttk.Button(self, text='Konvertieren', command=self.convert_callback)
+        button_convert.grid(column=1, row=3, sticky='e', padx=10, pady=10)
         
         # Create textLogger
         text_handler = TextHandler(st)
 
         # Logging configuration
-        logging.basicConfig(filename='test.log',
+        logging.basicConfig(filename=f'{ui_name}.log',
             level=logging.INFO, 
             format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -162,13 +160,11 @@ class myGUI(tk.Frame):
         logger = logging.getLogger()
         logger.addHandler(text_handler)
 
-        button_convert = ttk.Button(self, text='Konvertieren', command=self.convert_callback)
-        button_convert.grid(column=1, row=3, sticky='e', padx=10, pady=10)
-
 
 def main():
     root = tk.Tk()
-    myGUI(root)
+    converterUI(root)
     root.mainloop()
 
-main()
+if __name__ == "__main__":
+    main()
