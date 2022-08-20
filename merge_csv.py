@@ -5,7 +5,7 @@ input_directory = './OBM22/csv/all'
 output_file_name = 'merge.csv'
 
 
-def merge_csv_in_directory(input_directory, output_file_name, delimiter=',', csv_has_header=True, log_file_name='log_merge_csv.txt'):
+def merge_csv_in_directory(input_directory, output_file_name, delimiter=',', csv_has_header=True, log_file_name='log_merge_csv.txt', make_unique=False):
     file_list = []
     for directory_item in os.listdir(input_directory):
         file_path = os.path.join(input_directory, directory_item)
@@ -27,10 +27,10 @@ def merge_csv_in_directory(input_directory, output_file_name, delimiter=',', csv
 
         file_list.append(file_path)
 
-    merge_csv(file_list, os.path.join(input_directory, output_file_name), delimiter, csv_has_header, os.path.join(input_directory, log_file_name))
+    merge_csv(file_list, os.path.join(input_directory, output_file_name), delimiter, csv_has_header, os.path.join(input_directory, log_file_name), make_unique)
 
 
-def merge_csv(csv_file_list, output_file_path, delimiter=',', csv_has_header=True, log_file_path='log_merge_csv.txt'):
+def merge_csv(csv_file_list, output_file_path, delimiter=',', csv_has_header=True, log_file_path='log_merge_csv.txt', make_unique=False):
 
     fieldnames = {}
     output_list = []
@@ -56,6 +56,9 @@ def merge_csv(csv_file_list, output_file_path, delimiter=',', csv_has_header=Tru
                     output_list.append(line)
 
         if output_list:
+            if make_unique:
+                output_list = list(set(output_list))
+
             with open(output_file_path, 'w') as csv_file:
                 log_file.write("Writing csv file '%s'\n" %  output_file_path)
                 if csv_has_header:
