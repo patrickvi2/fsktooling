@@ -6,8 +6,7 @@ import logging
 import traceback
 from typing import List
 
-import model
-import output
+from . import model, output
 
 # settings
 input_DEU_participant_csv_file_path = pathlib.Path('./GBB21Test/csv/Meldeliste_GBB_deu_athletes.csv')
@@ -27,7 +26,8 @@ class DeuMeldeformularCsv:
         self.unknown_ids = { '888888' : 0, '999999' : 0 }
     
 
-    def convert(self, input_participants: str, input_clubs: str, input_categories: str, input_event_info: str, outputs: List[output.OutputBase]):
+    def convert(self, input_participants: str, input_clubs: str, input_categories: str, input_event_info: str, outputs: List[
+        output.OutputBase]):
         if not os.path.isfile(input_participants):
             print('Participants file not found.')
             return 1

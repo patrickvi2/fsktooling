@@ -1,10 +1,10 @@
 import csv
 from datetime import date, datetime
-import logging
 import pathlib
 import xml.etree.ElementTree as ET
 
-import model
+from . import model
+
 
 # virtual output base class - responsible for gathering infos and writing files
 class OutputBase:

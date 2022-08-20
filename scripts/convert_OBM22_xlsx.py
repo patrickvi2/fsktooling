@@ -2,9 +2,9 @@ import csv
 import os
 from shutil import move
 
-from merge_csv import merge_csv, merge_csv_in_directory
-import convert_DEU_meldeformular_to_csv as DEUxlsx
-import convert_DEU_meldeformular_csv_to_participant_csv as DEUcsv
+from fsklib.utils.merge_csv import merge_csv, merge_csv_in_directory
+import fsklib.deuxlsxforms as DEUxlsx
+import fsklib.deueventcsv as DEUcsv
 
 csv_path = './OBM22/csv'
 obm_path = './OBM22/csv/OBM'

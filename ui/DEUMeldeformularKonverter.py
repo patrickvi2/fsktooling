@@ -1,5 +1,6 @@
 import logging
 import pathlib
+import sys
 try:
     import tkinter as tk # Python 3.x
     import tkinter.ttk as ttk
@@ -10,9 +11,17 @@ except ImportError:
     import ScrolledText
     # TODO python2
 
-from deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX 
-from deueventcsv import DeuMeldeformularCsv
-import output
+from fsklib.deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX
+from fsklib.deueventcsv import DeuMeldeformularCsv
+from fsklib.output import OdfParticOutput
+
+def root_dir() -> pathlib.Path:
+    if getattr(sys, 'frozen', False):
+        return pathlib.Path(sys.executable).parent
+    return pathlib.Path(__file__).resolve().parent.parent
+
+def master_data_dir() -> pathlib.Path:
+    return root_dir() / "masterData"
 
 class TextHandler(logging.Handler):
     # This class allows you to log to a Tkinter Text or ScrolledText widget
@@ -44,7 +53,7 @@ class myGUI(tk.Frame):
         tk.Frame.__init__(self, parent, *args, **kwargs)
         self.root = parent
         self.build_gui()
-        self.input_xlsx_path = None
+        self.input_xlsx_path = pathlib.Path()
 
     def file_dialog(self, file_extensions, file_type, function):
         # show the open file dialog
@@ -55,24 +64,26 @@ class myGUI(tk.Frame):
         function(f)
 
     def open_xlsx(self, file_name):
+        self.input.delete(1.0, tk.END)
         self.input_xlsx_path = pathlib.Path(file_name)
-        self.input.insert('1.0', file_name)
+        self.input.insert('1.0', self.input_xlsx_path)
 
-    def file_dialog_set_text(self, file_extensions, text_widget: tk.Text, file_type):
+    def file_dialog_set_text(self, file_extensions, file_type):
         self.file_dialog(file_extensions, file_type, self.open_xlsx)
 
     def file_input(self, root, file_extensions, file_type, button_text='Auswählen'):
         self.input = tk.Text(root, height=1)
         self.input.grid(column=0, row=0, sticky='nsew')
-        button = ttk.Button(root, text=button_text, command=lambda: self.file_dialog_set_text(file_extensions, input, file_type) )
-        button.grid(column=1, row=0, sticky='nsew')
+        self.input.insert('1.0', 'DEU Meldeformular (.xlsx)')
+        button = ttk.Button(root, text=button_text, command=lambda: self.file_dialog_set_text(file_extensions, file_type) )
+        button.grid(column=1, row=0, sticky='nsew', padx=10)
 
     def logic(self):
         if not self.input_xlsx_path:
-            logging.info('Choose input file')
+            logging.info('Fehler: Meldeformular-Datei auswählen!')
             return
         
-        logging.info("Start parsing %s" % str(self.input_xlsx_path))
+        logging.info("Meldeformular einlesen")
         try:
             deu_xlsx = DEUMeldeformularXLSX(self.input_xlsx_path)
             deu_xlsx.convert()
@@ -82,22 +93,24 @@ class myGUI(tk.Frame):
             deu_categories_csv = deu_xlsx.get_output_files(ConvertedOutputType.EVENT_CATERGORIES)[0]
 
             if not deu_event_info_csv or not deu_persons_csv or not deu_categories_csv:
-                logging.error("Not all intermediate CSV files were created")
+                logging.error("Nicht alle notwendigen Informationen konnten aus dem Meldeformular gelesen werden.")
                 return
         except:
-            logging.error("Reading Excel file failed.")
+            logging.error("Das Meldeformular konnte nicht korrekt eingelesen werden.")
+            return
 
-        logging.info("Finished parsing %s" % str(self.input_xlsx_path))
-
-        logging.info("Start generating ODF-XML files")
+        logging.info("Generiere ODF-Dateien...")
 
         output_path = self.input_xlsx_path.parent
         deu_csv = DeuMeldeformularCsv()
-        deu_csv.convert(deu_persons_csv, 'DEU/clubs-DEU.csv', deu_categories_csv, deu_event_info_csv, [
-            output.OdfParticOutput(output_path)
-        ])
+        deu_csv.convert(deu_persons_csv,
+                        master_data_dir() / "csv" / "clubs-DEU.csv",
+                        deu_categories_csv,
+                        deu_event_info_csv,
+                        [OdfParticOutput(output_path)])
 
-        logging.info("Finished generating ODF-XML.")
+        logging.info("Fertig!")
+        logging.info("Generierte Dateien befinden sich hier: %s" % str(self.input_xlsx_path.parent))
 
     def convert_callback(self):
         self.logic()
@@ -111,32 +124,31 @@ class myGUI(tk.Frame):
         # )
         # self.file_dialog(save_file_extensions, 'w', self.logic)
 
-
     def build_gui(self):
         # Build GUI
         # self.root.title('TEST')
-        self.root.title('Konvertiere DEUMeldeformular nach FSManager')
+        self.root.title('Konvertiere DEUMeldeformular')
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='nsew')
+        self.pack(fill = 'both', expand = True, padx = 10, pady = 10)
         # self.grid_columnconfigure(0, weight=1, uniform='a')
         # self.grid_columnconfigure(1, weight=1, uniform='a')
         # self.grid_columnconfigure(2, weight=1, uniform='a')
         # self.grid_columnconfigure(3, weight=1, uniform='a')
 
-
-        frame_input = ttk.LabelFrame(self, text='DEU Meldeformular (.xlsx)')
-        frame_input.grid(column=0, row=0, sticky='nsew')
         file_extensions = (
             ('Excel-Datei', '*.xlsx'),
             ('All files', '*.*')
         )
-        self.file_input(frame_input, file_extensions, 'r')
+        self.file_input(self, file_extensions, 'r')
+
+        label = tk.Label(self, text="Log-Ausgabe")
+        label.grid(column=0, row=1, sticky='nw')
 
         # Add text widget to display logging info
         st = ScrolledText.ScrolledText(self, state='disabled')
         st.configure(font='TkFixedFont')
-        st.grid(column=0, row=1, sticky='nsew', columnspan=4)
-
+        st.grid(column=0, row=2, sticky='nsew', columnspan=4)
         
         # Create textLogger
         text_handler = TextHandler(st)
@@ -149,10 +161,9 @@ class myGUI(tk.Frame):
         # Add the handler to logger
         logger = logging.getLogger()
         logger.addHandler(text_handler)
-        print = logging.info
 
         button_convert = ttk.Button(self, text='Konvertieren', command=self.convert_callback)
-        button_convert.grid(column=0, row=2, sticky='e')
+        button_convert.grid(column=1, row=3, sticky='e', padx=10, pady=10)
 
 
 def main():

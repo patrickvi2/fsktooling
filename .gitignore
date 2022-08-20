@@ -12,5 +12,7 @@
 *.pdf
 *.pyc
 *.spec
+*.egg-info
 __pycache__
 build/
+dist/
