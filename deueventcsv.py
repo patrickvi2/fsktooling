@@ -1,22 +1,25 @@
-import os
-from  datetime import datetime
-import traceback
 import csv
+from  datetime import date, datetime
+import os
+import pathlib
+import logging
+import traceback
 from typing import List
 
 import model
 import output
 
 # settings
-input_DEU_participant_csv_file_path = 'BJM22/deu_athletes.csv'
-input_DEU_club_csv_file_path = './DEU/clubs-DEU.csv'
-input_DEU_categories_csv_file_path = 'BJM22/categories.csv'
-output_athletes_file_path = './BJM22Test/person.csv'
-output_participant_file_path = './BJM22Test/participants.csv'
-output_odf_participant_file_path = './BJM22Test/DT_PARTIC_UPDATE.xml'
+input_DEU_participant_csv_file_path = pathlib.Path('./GBB21Test/csv/Meldeliste_GBB_deu_athletes.csv')
+input_DEU_club_csv_file_path = pathlib.Path('./DEU/clubs-DEU.csv')
+input_DEU_categories_csv_file_path = pathlib.Path('./GBB21Test/csv/Meldeliste_GBB_deu_categories.csv')
+input_DEU_competition_info_csv_file_path = pathlib.Path('./GBB21Test/csv/Meldeliste_GBB_deu_competition.csv')
+output_athletes_file_path = pathlib.Path('./GBB21Test/person.csv')
+output_participant_file_path = pathlib.Path('./GBB21Test/participants.csv')
+output_odf_participant_dir = pathlib.Path('./GBB21Test/')
 
 
-class DeuMeldeformularConverter:
+class DeuMeldeformularCsv:
     # static member
     deu_category_to_gender = {'Herren' : model.Gender.MALE, 'Damen' : model.Gender.FEMALE, 'Einzellauf': model.Gender.FEMALE, 'Paarlaufen' : model.Gender.TEAM, 'Eistanzen' : model.Gender.TEAM, 'Synchron': model.Gender.TEAM}
     
@@ -24,7 +27,7 @@ class DeuMeldeformularConverter:
         self.unknown_ids = { '888888' : 0, '999999' : 0 }
     
 
-    def convert(self, input_participants: str, input_clubs: str, input_categories: str, outputs: List[output.OutputBase]):
+    def convert(self, input_participants: str, input_clubs: str, input_categories: str, input_event_info: str, outputs: List[output.OutputBase]):
         if not os.path.isfile(input_participants):
             print('Participants file not found.')
             return 1
@@ -35,6 +38,20 @@ class DeuMeldeformularConverter:
             print('Categories file not found.')
             return 3
         
+        competition = model.Competition("Test", "LV", "here", date.today(), date.today())
+        if input_event_info:
+            event_info_file = open(input_event_info, 'r')
+            info_reader = csv.DictReader(event_info_file, delimiter=',')
+            for comp_dict in info_reader:
+                competition.name = comp_dict['Name']
+                competition.organizer = comp_dict['Veranstalter']
+                competition.place = comp_dict['Ort']
+                competition.start = date.fromisoformat(comp_dict['Start Datum'])
+                competition.end = date.fromisoformat(comp_dict['End Datum'])
+
+        for output in outputs:
+            output.add_event_info(competition)
+
         # read clubs
         try:
             clubs_file = open(input_clubs, 'r')
@@ -61,7 +78,7 @@ class DeuMeldeformularConverter:
                 cat_deu_level = cat_dict['Kategorie']
                 
                 cat_type = model.CategoryType.from_value(cat_deu_type, model.DataSource.DEU)
-                cat_gender = DeuMeldeformularConverter.deu_category_to_gender[cat_deu_type] if cat_deu_type in DeuMeldeformularConverter.deu_category_to_gender else model.Gender.FEMALE
+                cat_gender = DeuMeldeformularCsv.deu_category_to_gender[cat_deu_type] if cat_deu_type in DeuMeldeformularCsv.deu_category_to_gender else model.Gender.FEMALE
                 cat_level = model.CategoryLevel.from_value(cat_deu_level, model.DataSource.DEU)
 
                 if not cat_type or not cat_gender or not cat_level:
@@ -82,6 +99,7 @@ class DeuMeldeformularConverter:
             check_field_names = True
 
             next_is_male_partner = False
+            par_ids = set()
             team_dict = {} # a map storing (team_id -> team participant), will be added at the end
             couple_dict = {} # safe a list of couple members (storing ID -> par), if partner is found -> create participant and delete from this list
             athlete_last = None
@@ -134,6 +152,7 @@ class DeuMeldeformularConverter:
 
                 # guess athlete gender
                 couple_found = False
+                par_gender = model.Gender.FEMALE # default e.g. for sys teams
                 if cat_type in [model.CategoryType.PAIRS, model.CategoryType.ICEDANCE]:
                     if par_team_id:
                         if par_team_id.endswith(str(par_id)): # team id ends with male team id
@@ -168,13 +187,15 @@ class DeuMeldeformularConverter:
                     print('Error: Club not found: "%s". Cannot derive nation for following athlete.')
                     print(athlete)
                     print('Skipping athlete.')
-                    athlete_last = athlete
                     continue
-                
-                # add athletes data
-                person = model.Person(par_id, par_family_name, par_first_name, par_gender, par_bday, par_club)
-                for output in outputs:
-                    output.add_person(person)
+
+                # avoide duplicate persons
+                if par_id not in par_ids:
+                    # add athletes data
+                    person = model.Person(par_id, par_family_name, par_first_name, par_gender, par_bday, par_club)
+                    for output in outputs:
+                        output.add_person(person)
+                    par_ids.add(par_id)
 
                 # add participants
                 par = None
@@ -191,6 +212,7 @@ class DeuMeldeformularConverter:
                         continue # add teams in the end
                     else: # couple
                         if next_is_male_partner:
+                            athlete_last = athlete
                             continue
                         # couple without team id
                         couple = None
@@ -201,7 +223,7 @@ class DeuMeldeformularConverter:
                             par_female_family_name = athlete_last['Name']
                             par_female_club_abbr = athlete_last['Vereinskürzel']
                             par_female_bday = athlete_last['Geb. Datum'].strip()
-                            par_female_bday = date.fromisoformat(par_female_bday).date if par_female_bday else None
+                            par_female_bday = datetime.fromisoformat(par_female_bday).date() if par_female_bday else None
                             par_team_id = par_female_id + '-' + par_id
                             person_female = model.Person(par_female_id, par_female_family_name, par_female_first_name, 'F', par_female_bday, club_dict[par_female_club_abbr])
                             couple = model.Couple(person_female, None)
@@ -221,6 +243,8 @@ class DeuMeldeformularConverter:
 
                         continue # add couples in the end
 
+                athlete_last = athlete
+
                 if par == None:
                     print("Error: unable to create participant")
                     continue
@@ -229,8 +253,6 @@ class DeuMeldeformularConverter:
                 par.points = par_points
                 for output in outputs:
                     output.add_participant(par)
-                    
-                athlete_last = athlete
 
             for couple in couple_dict.values():
                 if couple.couple.partner_1.id and couple.couple.partner_2.id:
@@ -252,12 +274,15 @@ class DeuMeldeformularConverter:
             pars_file.close()
 
 if __name__ == '__main__':
-    exit(DeuMeldeformularConverter().convert(input_DEU_participant_csv_file_path, 
+    exit(DeuMeldeformularCsv().convert(input_DEU_participant_csv_file_path, 
                                              input_DEU_club_csv_file_path, 
-                                             input_DEU_categories_csv_file_path, [
-                                                output.PersonCsvOutput(output_athletes_file_path),
+                                             input_DEU_categories_csv_file_path,
+                                             input_DEU_competition_info_csv_file_path, [
+                                                # output.PersonCsvOutput(output_athletes_file_path),
                                                 output.ParticipantCsvOutput(output_participant_file_path),
-                                                output.OdfParticOutput(output_odf_participant_file_path)
+                                                output.OdfParticOutput(output_odf_participant_dir)
                                            ]
                                            ))
+else:
+    print = logging.info
 

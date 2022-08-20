@@ -155,6 +155,16 @@ class ParticipantTeam(ParticipantBase):
         super().__init__(category, status, total_points)
         self.team = team
 
+class Competition:
+    def __init__(self, name: str, organizer: str, place: str, start: datetime.date, end: datetime.date) -> None:
+        self.name = name
+        self.organizer = organizer 
+        self.place = place
+        self.start = start
+        self.end = end
+        # self.categories = [] not yet used
+        # self.participants [] not yet used
+
 if __name__ == "__main__":
     print(Gender.MALE)
     g = Gender.from_value('F', DataSource.CALC)

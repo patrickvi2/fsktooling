@@ -1,25 +1,32 @@
 import csv
+from datetime import date, datetime
+import logging
+import pathlib
 import xml.etree.ElementTree as ET
-from datetime import datetime
 
 import model
 
 # virtual output base class - responsible for gathering infos and writing files
 class OutputBase:
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: pathlib.Path) -> None:
         self.path = file_path
-    def add_person(self):
+    def add_event_info(self, competition_info: model.Competition) -> None:
         raise NotImplementedError()
-    def add_participant(self):
+    def add_person(self) -> None:
         raise NotImplementedError()
-    def write_file(self):
+    def add_participant(self) -> None:
+        raise NotImplementedError()
+    def write_file(self) -> None:
         raise NotImplementedError()
 
 # athletes / persons
 class PersonCsvOutput(OutputBase):
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: pathlib.Path):
         super().__init__(file_path)
         self.persons = list()
+
+    def add_event_info(self, competition_info: model.Competition) -> None:
+        pass
 
     def add_participant(self, participant: model.ParticipantBase):
         pass
@@ -37,7 +44,7 @@ class PersonCsvOutput(OutputBase):
 
 # participants
 class ParticipantCsvOutput(OutputBase):
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: pathlib.Path) -> None:
         super().__init__(file_path)
         self.participant_csv_data = []
 
@@ -122,6 +129,9 @@ class ParticipantCsvOutput(OutputBase):
 
         return output
 
+    def add_event_info(self, competition_info: model.Competition) -> None:
+        pass
+
     def add_participant(self, participant: model.ParticipantBase):
         self.participant_csv_data.append(self.get_participant_dict(participant))
 
@@ -144,11 +154,15 @@ class ParticipantCsvOutput(OutputBase):
 
 
 class OdfParticOutput(OutputBase):
-    def __init__(self, file_path: str) -> None:
-        super().__init__(file_path)
+    def __init__(self, dir_path: pathlib.Path) -> None:
+        super().__init__(dir_path)
         self.competition_elem = ET.Element("Competition")
+        self.competition_elem_couples = ET.Element("Competition")
         self.disciplin = "FSK" + 31 * "-"
         self.accreditation_id = 1
+
+    def add_event_info(self, competiton_info: model.Competition):
+        self.competition = competiton_info
     
     def add_participant(self, participant: model.ParticipantBase):
         category = participant.cat
@@ -161,14 +175,16 @@ class OdfParticOutput(OutputBase):
         if type(participant) == model.ParticipantSingle:
             persons.append(participant.person)
         # TODO add couples and teams to DT_PARTIC_TEAM.xml
-        # if type(participant) == model.ParticipantCouple:
-        #     persons.append(participant.couple.partner_1)
-        #     persons.append(participant.couple.partner_2)
+        if type(participant) == model.ParticipantCouple:
+            persons.append(participant.couple.partner_1)
+            persons.append(participant.couple.partner_2)
         # if type(participant) == model.ParticipantTeam:
         #     for person in participant.team.persons:
         #         persons.append(person)
+        accreditation_ids = []
         for person in persons:
-            dis_elem = self.competition_elem.find(f"./Participant/Discipline[@IFId='{person.id}']")
+            par_elem = self.competition_elem.find(f"./Participant/Discipline[@IFId='{person.id}']/..")
+            dis_elem = par_elem.getchildren()[0] # there is always only one child -> Discipline
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
             event_club_attrib = {
                 "Type" : "ER_EXTENDED",
@@ -176,7 +192,69 @@ class OdfParticOutput(OutputBase):
             }
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "1", "Value" : person.club.name}})
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "2", "Value" : person.club.abbr}})
-        pass
+            accreditation_ids.append(par_elem.get('Code'))
+        
+        if type(participant) == model.ParticipantCouple:
+            first1 = participant.couple.partner_1.first_name
+            l = str('test').split()
+            initials1 = ''.join([s[0] for s in first1.split()])
+            last1 = participant.couple.partner_1.family_name.upper()
+            first2 = participant.couple.partner_2.first_name
+            initials2 = ''.join([s[0] for s in first2.split()])
+            last2 = participant.couple.partner_2.family_name.upper()
+            nation = participant.couple.partner_1.club.nation
+            if participant.couple.partner_1.club.nation != participant.couple.partner_2.club.nation:
+                nation += "/" + participant.couple.partner_2.club.nation
+            
+            team_attrib = {
+                "Code" : str(self.accreditation_id),
+                "Organisation" : nation,
+                "Number" : "1",
+                "Name" : f"{first1} {last1} / {first2} {last2}",
+                "ShortName" : f"{initials1} {last1} / {initials2} {last2}",
+                "TeamType" : "CPLW",
+                "TVTeamName" : f"{last1}/{last2}",
+                "Gender" : "X",
+                "Current" : "true",
+                "ModificationIndicator" : "N"
+                }
+
+            team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
+            comp_elem = ET.SubElement(team_elem, "Composition")
+            for count, id in enumerate(accreditation_ids, 1):
+                ET.SubElement(comp_elem, "Athlete", {"Code" : id, "Order": str(count)})
+
+            team_id = f"{participant.couple.partner_1.id}-{participant.couple.partner_2.id}"
+
+            dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
+            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
+            
+            self.accreditation_id += 1
+        if type(participant) == model.ParticipantTeam:
+            team_attrib = {
+                "Code" : str(self.accreditation_id),
+                "Organisation" : participant.team.club.nation,
+                "Number" : "1",
+                "Name" : participant.team.name,
+                "ShortName" : participant.team.name,
+                "TeamType" : "CUSTOM",
+                "TVTeamName" : participant.team.name,
+                "Gender" : "X",
+                "Current" : "true",
+                "ModificationIndicator" : "N"
+                }
+            team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
+
+            dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : participant.team.id})
+            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
+            event_club_attrib = {
+                "Type" : "ER_EXTENDED",
+                "Code" : "CLUB"
+            }
+            ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "1", "Value" : participant.team.club.name}})
+            ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "2", "Value" : participant.team.club.abbr}})
+            self.accreditation_id += 1
+
 
     def add_person(self, person: model.Person):
         first = person.first_name
@@ -208,20 +286,26 @@ class OdfParticOutput(OutputBase):
         if len(self.competition_elem) > 0:
             now = datetime.now()
             date = now.strftime("%Y-%m-%d")
+            time = now.strftime("%H%M%S%f")[:9]
             competition_attrib = {
-                "CompetitionCode" : "TestName",
+                "CompetitionCode" : self.competition.name,
                 "DocumentCode" : self.disciplin,
-                "DocumentType" : "DT_PARTIC_UPDATE",
+                "DocumentType" : "DT_PARTIC",
                 "Version" : "1",
                 "FeedFlag" : "P",
                 "Date" : date,
-                "Time" : "123456789",
+                "Time" : time,
                 "LogicalDate" : date,
                 "Source" : "FSKFSK1"
             }
             root = ET.Element("OdfBody", competition_attrib)
             root.insert(0, self.competition_elem)
-            ET.ElementTree(root).write(self.path, encoding="utf-8", xml_declaration=True)
+            ET.ElementTree(root).write(self.path / "DT_PARTIC.xml", encoding="utf-8", xml_declaration=True)
+
+            competition_attrib["DocumentType"] = "DT_PARTIC_TEAMS"
+            root = ET.Element("OdfBody", competition_attrib)
+            root.insert(0, self.competition_elem_couples)
+            ET.ElementTree(root).write(self.path / "DT_PARTIC_TEAMS.xml", encoding="utf-8", xml_declaration=True)
         else:
             print("OdfParticOutput: No persons found for writing. Skip creating file.")
 

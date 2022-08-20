@@ -1,4 +1,5 @@
 *.txt
+*.log
 *.csv
 *.zip
 *.xml
@@ -10,4 +11,6 @@
 *.m4a
 *.pdf
 *.pyc
+*.spec
 __pycache__
+build/
