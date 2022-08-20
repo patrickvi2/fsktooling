@@ -1,0 +1,172 @@
+<Clubs>
+    <Club CLUB_NAME="1. CfR Pforzheim" CLUB_SHORT_NAME="CFRP" />
+    <Club CLUB_NAME="EC Eppelheim" CLUB_SHORT_NAME="ECEPP" />
+    <Club CLUB_NAME="Eis-Sport-Club Ravensburg e.V." CLUB_SHORT_NAME="ESCRA" />
+    <Club CLUB_NAME="Eiskunstlauf Senden e.V." CLUB_SHORT_NAME="EKLS" />
+    <Club CLUB_NAME="Eislaufverein Ulm / Neu-Ulm e.V." CLUB_SHORT_NAME="ELVU" />
+    <Club CLUB_NAME="Eissportclub Herrischried e.V." CLUB_SHORT_NAME="ESCHER" />
+    <Club CLUB_NAME="Eissportgemeinschaft Freiburg e.V." CLUB_SHORT_NAME="ESGF" />
+    <Club CLUB_NAME="Eissportverein Senden e.V." CLUB_SHORT_NAME="EVSE" />
+    <Club CLUB_NAME="EKV Balingen e.V." CLUB_SHORT_NAME="EKVB" />
+    <Club CLUB_NAME="ERC Göppingen e.V." CLUB_SHORT_NAME="ERCGP" />
+    <Club CLUB_NAME="ERC Waldbronn e.V." CLUB_SHORT_NAME="ERCWA" />
+    <Club CLUB_NAME="ESC Hügelsheim 09 e.V." CLUB_SHORT_NAME="ESHÜ" />
+    <Club CLUB_NAME="ESG Esslingen e.V." CLUB_SHORT_NAME="ESGE" />
+    <Club CLUB_NAME="EV Hotzenwald-Herrischried e.V." CLUB_SHORT_NAME="EVH" />
+    <Club CLUB_NAME="Freiburger RSC e. V." CLUB_SHORT_NAME="FRSC" />
+    <Club CLUB_NAME="Konstanzer REC e.V." CLUB_SHORT_NAME="KREC" />
+    <Club CLUB_NAME="Mannheimer ERC e.V." CLUB_SHORT_NAME="MERC" />
+    <Club CLUB_NAME="REV Heilbronn von 1934 e.V." CLUB_SHORT_NAME="REVH" />
+    <Club CLUB_NAME="SERC 04 Schwenningen e.V." CLUB_SHORT_NAME="SERCS" />
+    <Club CLUB_NAME="Stuttgarter ERC 1911 e.V." CLUB_SHORT_NAME="SERC" />
+    <Club CLUB_NAME="TEC Waldau Stuttgart e.V." CLUB_SHORT_NAME="TECW" />
+    <Club CLUB_NAME="TSG Reutlingen 1843 e.V." CLUB_SHORT_NAME="TSGR" />
+    <Club CLUB_NAME="tus Stuttgart Eissport e.V." CLUB_SHORT_NAME="TUSST" />
+    <Club CLUB_NAME="TV Unterboihingen e.V." CLUB_SHORT_NAME="TVU" />
+    <Club CLUB_NAME="1. EV Weiden e.V." CLUB_SHORT_NAME="EVWEI" />
+    <Club CLUB_NAME="Bad Wörishofer EKV e.V." CLUB_SHORT_NAME="BADW" />
+    <Club CLUB_NAME="Bayreuther Turnerschaft 1861 e.V." CLUB_SHORT_NAME="BAYTS" />
+    <Club CLUB_NAME="DEC Inzell e.V." CLUB_SHORT_NAME="DECI" />
+    <Club CLUB_NAME="Deggendorfer Schlittschuh-Club e.V." CLUB_SHORT_NAME="DEGSC" />
+    <Club CLUB_NAME="DJK-SV Ost Memmingen e.V." CLUB_SHORT_NAME="DJKM" />
+    <Club CLUB_NAME="EC Oberstdorf e.V." CLUB_SHORT_NAME="ECO" />
+    <Club CLUB_NAME="EC Pfaffenhofen e.V." CLUB_SHORT_NAME="ECPFA" />
+    <Club CLUB_NAME="EC Pirouette München" CLUB_SHORT_NAME="ECPM" />
+    <Club CLUB_NAME="EHC Klostersee Grafing e.V." CLUB_SHORT_NAME="EHCK" />
+    <Club CLUB_NAME="Eisclub Bad Tölz e.V." CLUB_SHORT_NAME="ECBT" />
+    <Club CLUB_NAME="Eiskunstlauf-Verein Holzkirchen e.V." CLUB_SHORT_NAME="EKVH" />
+    <Club CLUB_NAME="Eiskunstlaufverein Berchtesgaden e.V." CLUB_SHORT_NAME="EKLVBG" />
+    <Club CLUB_NAME="Eislauf Club Nürnberg e.V." CLUB_SHORT_NAME="ECNÜ" />
+    <Club CLUB_NAME="Eislaufverein Landshut e.V." CLUB_SHORT_NAME="EVLH" />
+    <Club CLUB_NAME="Eissport-Club Dorfen e.V." CLUB_SHORT_NAME="ESCDO" />
+    <Club CLUB_NAME="Eissport-Club Haßfurt e.V." CLUB_SHORT_NAME="ESCHAS" />
+    <Club CLUB_NAME="Eissport-Verein Augsburg e.V." CLUB_SHORT_NAME="EVAU" />
+    <Club CLUB_NAME="Eissportclub Kempten e.V." CLUB_SHORT_NAME="ESCKE" />
+    <Club CLUB_NAME="Eissportclub Regensburg e.V." CLUB_SHORT_NAME="ECRE" />
+    <Club CLUB_NAME="EKV Füssen e.V." CLUB_SHORT_NAME="EKVF" />
+    <Club CLUB_NAME="EKV Mittenwald e.V." CLUB_SHORT_NAME="EKVM" />
+    <Club CLUB_NAME="ERC Bad Aibling e.V." CLUB_SHORT_NAME="ERCBA" />
+    <Club CLUB_NAME="ERC Fürstenfeldbruck e.V." CLUB_SHORT_NAME="ERCFÜ" />
+    <Club CLUB_NAME="ERC Ingolstadt 'Panther' e.V." CLUB_SHORT_NAME="ERCI" />
+    <Club CLUB_NAME="ERC München e.V." CLUB_SHORT_NAME="ERCM" />
+    <Club CLUB_NAME="ERC Sonthofen 1999 e.V." CLUB_SHORT_NAME="ERCSO" />
+    <Club CLUB_NAME="ERSC Ottobrunn e.V." CLUB_SHORT_NAME="ERSCO" />
+    <Club CLUB_NAME="ERV Schweinfurt e.V." CLUB_SHORT_NAME="ERVS" />
+    <Club CLUB_NAME="ESC Amberg e.V." CLUB_SHORT_NAME="ESCAM" />
+    <Club CLUB_NAME="ESC Höchstadt/Aisch" CLUB_SHORT_NAME="ESCHÖ" />
+    <Club CLUB_NAME="ESC River Rats Geretsried e.V." CLUB_SHORT_NAME="ESCRRG" />
+    <Club CLUB_NAME="ESC Vilshofen e.V." CLUB_SHORT_NAME="ESCV" />
+    <Club CLUB_NAME="ESV Buchloe" CLUB_SHORT_NAME="ESVBU" />
+    <Club CLUB_NAME="ESV Burgau 2000 e.V." CLUB_SHORT_NAME="ESVB" />
+    <Club CLUB_NAME="ESV Kaufbeuren e.V." CLUB_SHORT_NAME="ESVK" />
+    <Club CLUB_NAME="EV Berchtesgaden e.V." CLUB_SHORT_NAME="EVBE" />
+    <Club CLUB_NAME="EV Rosenheim 1978 e.V." CLUB_SHORT_NAME="EVRO" />
+    <Club CLUB_NAME="Fun on Ice Regen e.V." CLUB_SHORT_NAME="FUNREG" />
+    <Club CLUB_NAME="Hockey Club Landsberg e.V." CLUB_SHORT_NAME="HCL" />
+    <Club CLUB_NAME="Munich Synchro Family e.V." CLUB_SHORT_NAME="MSF" />
+    <Club CLUB_NAME="Münchener EV v. 1883 e.V." CLUB_SHORT_NAME="MEV" />
+    <Club CLUB_NAME="SC Bad Kissingen e.V." CLUB_SHORT_NAME="SCBA" />
+    <Club CLUB_NAME="SC Riessersee e.V." CLUB_SHORT_NAME="SCRI" />
+    <Club CLUB_NAME="Ski-Club Ruhpolding e.V." CLUB_SHORT_NAME="SCRU" />
+    <Club CLUB_NAME="SV Hof 1911 e.V." CLUB_SHORT_NAME="SVHO" />
+    <Club CLUB_NAME="SV Pang 1950 e.V." CLUB_SHORT_NAME="SVPA" />
+    <Club CLUB_NAME="TEV Miesbach e.V." CLUB_SHORT_NAME="TEVM" />
+    <Club CLUB_NAME="TSV 1846 Nürnberg e.V." CLUB_SHORT_NAME="TSVN" />
+    <Club CLUB_NAME="TSV 1847 Schwaben Augsburg e.V." CLUB_SHORT_NAME="TSVSA" />
+    <Club CLUB_NAME="TSV Erding 1862 e.V." CLUB_SHORT_NAME="TSVERD" />
+    <Club CLUB_NAME="TSV Haunstetten 1892 e.V." CLUB_SHORT_NAME="TSVH" />
+    <Club CLUB_NAME="TSV Königsbrunn e.V." CLUB_SHORT_NAME="TSVK" />
+    <Club CLUB_NAME="TSV Waldkirchen e.V." CLUB_SHORT_NAME="TSVW" />
+    <Club CLUB_NAME="TuS Bad Aibling 1861 e.V." CLUB_SHORT_NAME="TUSBA" />
+    <Club CLUB_NAME="TuSpo Nürnberg" CLUB_SHORT_NAME="TUSPO" />
+    <Club CLUB_NAME="TV Freyung e.V." CLUB_SHORT_NAME="TVF" />
+    <Club CLUB_NAME="TV Passau 1862 e.V." CLUB_SHORT_NAME="TVPAS" />
+    <Club CLUB_NAME="VER Selb e.V." CLUB_SHORT_NAME="VERS" />
+    <Club CLUB_NAME="VfL Waldkraiburg e.V." CLUB_SHORT_NAME="VFLWA" />
+    <Club CLUB_NAME="Wanderers e.V. Germering" CLUB_SHORT_NAME="WAND" />
+    <Club CLUB_NAME="Weiß-Blau Casino 84 Memmingen e.V." CLUB_SHORT_NAME="WBCM" />
+    <Club CLUB_NAME="WSV 1909 Aschaffenburg e.V." CLUB_SHORT_NAME="WSVA" />
+    <Club CLUB_NAME="Würzburger ERV e.V." CLUB_SHORT_NAME="WERV" />
+    <Club CLUB_NAME="Berliner Schlittschuh-Club e.V." CLUB_SHORT_NAME="BSC" />
+    <Club CLUB_NAME="Berliner Sportverein 1892 e.V." CLUB_SHORT_NAME="BSV92" />
+    <Club CLUB_NAME="Berliner Turn- u. Sportclub e.V." CLUB_SHORT_NAME="BTSC" />
+    <Club CLUB_NAME="Neuköllner Sportfreunde 1907 e.V." CLUB_SHORT_NAME="NSF" />
+    <Club CLUB_NAME="Sport Club Charlottenburg e.V." CLUB_SHORT_NAME="SCC" />
+    <Club CLUB_NAME="Sportclub Berlin e.V." CLUB_SHORT_NAME="SCBE" />
+    <Club CLUB_NAME="Weddinger ERC e.V. Berlin" CLUB_SHORT_NAME="WERC" />
+    <Club CLUB_NAME="ATSV 1860 Bremen" CLUB_SHORT_NAME="ATSV" />
+    <Club CLUB_NAME="ERB Bremen e.V." CLUB_SHORT_NAME="ERBB" />
+    <Club CLUB_NAME="REV Bremerhaven e.V." CLUB_SHORT_NAME="REVB" />
+    <Club CLUB_NAME="SC Bremerhaven von 1997 e.V." CLUB_SHORT_NAME="SCBR" />
+    <Club CLUB_NAME="Ukrainian Figure Skating Federation" CLUB_SHORT_NAME="UKR" />
+    <Club CLUB_NAME="Eis- u. Rollsportverein Bergedorf e.V." CLUB_SHORT_NAME="ERVBE" />
+    <Club CLUB_NAME="ERV Bergedorf" CLUB_SHORT_NAME="ERVBERG" />
+    <Club CLUB_NAME="Hamburger Schlittschuh-Club 1881 e.V." CLUB_SHORT_NAME="HSC" />
+    <Club CLUB_NAME="Hamburger Sportverein e.V." CLUB_SHORT_NAME="HSV" />
+    <Club CLUB_NAME="EC Lauterbach 2012 e.V." CLUB_SHORT_NAME="ECL" />
+    <Club CLUB_NAME="Eis, Inline u. SC Wiesbaden 98 e.V." CLUB_SHORT_NAME="EIS" />
+    <Club CLUB_NAME="Eislaufclub Frankfurt e.V." CLUB_SHORT_NAME="ECF" />
+    <Club CLUB_NAME="Frankfurter REC e.V." CLUB_SHORT_NAME="FREC" />
+    <Club CLUB_NAME="FTG Frankfurt" CLUB_SHORT_NAME="FTG" />
+    <Club CLUB_NAME="LSC Bad Nauheim e.V." CLUB_SHORT_NAME="LSCBN" />
+    <Club CLUB_NAME="Makkabi Frankfurt" CLUB_SHORT_NAME="MAKF" />
+    <Club CLUB_NAME="RSC Wiesbaden 1955 e.V." CLUB_SHORT_NAME="RSCW" />
+    <Club CLUB_NAME="Ski Club Usseln e.V." CLUB_SHORT_NAME="SCUS" />
+    <Club CLUB_NAME="TGS Vorwärts 1874 Frankfurt e.V." CLUB_SHORT_NAME="TGSV" />
+    <Club CLUB_NAME="TSG Darmstadt 1846 e.V." CLUB_SHORT_NAME="TSGD" />
+    <Club CLUB_NAME="EC Hannover Indians e.V." CLUB_SHORT_NAME="ECHAI" />
+    <Club CLUB_NAME="EC Pferdeturm Hunters e.V." CLUB_SHORT_NAME="ECPFE" />
+    <Club CLUB_NAME="ESC Wedemark Scorpions e.V." CLUB_SHORT_NAME="ESCWS" />
+    <Club CLUB_NAME="Sportverein am Salzgittersee e.V." CLUB_SHORT_NAME="SVAS" />
+    <Club CLUB_NAME="Turn-Club Bissendorf e.V." CLUB_SHORT_NAME="TCBI" />
+    <Club CLUB_NAME="TV Jahn Wolfsburg e.V." CLUB_SHORT_NAME="TVJW" />
+    <Club CLUB_NAME="DSC Arminia Bielefeld e.V." CLUB_SHORT_NAME="DSCAB" />
+    <Club CLUB_NAME="Duisburger SC Kaiserberg 1947 e.V." CLUB_SHORT_NAME="DSCK" />
+    <Club CLUB_NAME="Düsseldorfer EG Eiskunstlauf e.V." CLUB_SHORT_NAME="DEGD" />
+    <Club CLUB_NAME="EGS Siegerland e.V." CLUB_SHORT_NAME="EGSS" />
+    <Club CLUB_NAME="Eiskunstlauf Akademie Rheine e.V." CLUB_SHORT_NAME="EKAR" />
+    <Club CLUB_NAME="Eiskunstlaufverein Aachen e.V." CLUB_SHORT_NAME="EKLA" />
+    <Club CLUB_NAME="Eislauf Club Nordhorn e.V." CLUB_SHORT_NAME="ECNOR" />
+    <Club CLUB_NAME="Eissport-Verein Krefeld 1978 e.V." CLUB_SHORT_NAME="EVKR" />
+    <Club CLUB_NAME="Eissportclub Herford e.V." CLUB_SHORT_NAME="ESCHE" />
+    <Club CLUB_NAME="EisSportVerein Niederrhein e.V." CLUB_SHORT_NAME="ESVN" />
+    <Club CLUB_NAME="ERC Bergkamen 1984 e.V." CLUB_SHORT_NAME="ERCBE" />
+    <Club CLUB_NAME="ERC Westf. Kunstlauf Dortmund e.V." CLUB_SHORT_NAME="ERCW" />
+    <Club CLUB_NAME="ESG Iserlohn e.V." CLUB_SHORT_NAME="ESGI" />
+    <Club CLUB_NAME="Essener Jugend Eiskunstl.-Verein e.V" CLUB_SHORT_NAME="EJEKL" />
+    <Club CLUB_NAME="Grafschafter SC Moers e.V." CLUB_SHORT_NAME="GSCM" />
+    <Club CLUB_NAME="Grefrather Schlitttschuh-Klub e.V." CLUB_SHORT_NAME="GREF" />
+    <Club CLUB_NAME="Kölner Eis-Klub e.V." CLUB_SHORT_NAME="KEK" />
+    <Club CLUB_NAME="Königsborner SV Unna 1880/1911 e.V." CLUB_SHORT_NAME="KSVU" />
+    <Club CLUB_NAME="Neusser Schlittschuh-Klub e.V." CLUB_SHORT_NAME="NSK" />
+    <Club CLUB_NAME="SC Möhnesee e.V." CLUB_SHORT_NAME="SCMÖ" />
+    <Club CLUB_NAME="Schlittschuh-Club Krefeld 1978 e.V." CLUB_SHORT_NAME="SCKR" />
+    <Club CLUB_NAME="Solinger Turnerbund 1880 e.V." CLUB_SHORT_NAME="STB" />
+    <Club CLUB_NAME="TG Herford von 1860 e.V." CLUB_SHORT_NAME="TGH" />
+    <Club CLUB_NAME="TSC Eintracht 1848/95 Dortmund e.V." CLUB_SHORT_NAME="TSCE" />
+    <Club CLUB_NAME="TuS Wiehl Eissport-Club e.V." CLUB_SHORT_NAME="TUSW" />
+    <Club CLUB_NAME="TV 1875 Paderborn e.V." CLUB_SHORT_NAME="TVPAD" />
+    <Club CLUB_NAME="Bitburger Eissportverein e.V." CLUB_SHORT_NAME="BESV" />
+    <Club CLUB_NAME="Eis- und Rollsportclub Diez e.V." CLUB_SHORT_NAME="ERCD" />
+    <Club CLUB_NAME="Fun on Ice e.V. Neuwied" CLUB_SHORT_NAME="FUN" />
+    <Club CLUB_NAME="Ice Academy Mainz e.V." CLUB_SHORT_NAME="ICEAM" />
+    <Club CLUB_NAME="Mainzer Eissport-Club e.V." CLUB_SHORT_NAME="MEC" />
+    <Club CLUB_NAME="Neuwieder Eissport-Club e.V." CLUB_SHORT_NAME="NEC" />
+    <Club CLUB_NAME="Skate 'n Fun Saar-Pfalz e.V." CLUB_SHORT_NAME="SKATE" />
+    <Club CLUB_NAME="Turngemeinde 1846 Worms e.V." CLUB_SHORT_NAME="TGW" />
+    <Club CLUB_NAME="TUS 1882 Asbach" CLUB_SHORT_NAME="TUSA1" />
+    <Club CLUB_NAME="1. EC Dillingen e.V." CLUB_SHORT_NAME="ECDIL" />
+    <Club CLUB_NAME="Eis- und Sportverein Halle e.V." CLUB_SHORT_NAME="ESVH" />
+    <Club CLUB_NAME="Eiskunstlaufverein Halle e.V." CLUB_SHORT_NAME="EKLVH" />
+    <Club CLUB_NAME="Hallescher Eissport Club e.V." CLUB_SHORT_NAME="HEC" />
+    <Club CLUB_NAME="Chemnitzer Eislauf-Club e.V." CLUB_SHORT_NAME="CEC" />
+    <Club CLUB_NAME="Dresdner Eislauf-Club e.V." CLUB_SHORT_NAME="DREC" />
+    <Club CLUB_NAME="Hainberger SV Greiz e.V." CLUB_SHORT_NAME="HSVG" />
+    <Club CLUB_NAME="Leipziger Eissport-Club e.V." CLUB_SHORT_NAME="LEC" />
+    <Club CLUB_NAME="SV Felsenkeller Dresden e.V." CLUB_SHORT_NAME="SVFD" />
+    <Club CLUB_NAME="USG Chemnitz e.V." CLUB_SHORT_NAME="USGC" />
+    <Club CLUB_NAME="EC Ilmenau e.V." CLUB_SHORT_NAME="ECIL" />
+    <Club CLUB_NAME="Eiskunstlaufgemeinschaft Ilm-Kreis e.V." CLUB_SHORT_NAME="EKLILM" />
+    <Club CLUB_NAME="Eissportclub Erfurt e.V." CLUB_SHORT_NAME="ESCE" />
+    <Club CLUB_NAME="SV TU Ilmenau e.V. - Eiskunstlauf" CLUB_SHORT_NAME="SVTU" />
+</Clubs>
