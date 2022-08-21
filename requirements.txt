@@ -1,3 +1,4 @@
 PyPDF4>=1.27.0 # for merge pdf
 openpyxl>=3.0.7 # read DEU Meldeformular
 mysqlpy
+pyinstaller
