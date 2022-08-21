@@ -1,7 +1,7 @@
 import csv, codecs
 
-csv_file_path = "DEU/nations-DEU-Landesverbaende.csv"
-xml_output_file_path = "DEU/nations-DEU-Landesverbaende.xml"
+csv_file_path = "masterData/csv/nations-DEU-Landesverbaende.csv"
+xml_output_file_path = "masterData/FSM/nations-DEU-Landesverbaende.xml"
 
 xml_content = "<ISUCalcFS>\n"\
               "  <Nation_List>\n"
