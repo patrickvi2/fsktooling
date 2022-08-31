@@ -131,7 +131,7 @@ class DEUMeldeformularXLSX:
             print('Warning: File "%s" exists already. No csv file created. Set overwrite=True to overwrite a existing csv file.' % path)
             return
 
-        with open(path, 'w') as f:
+        with open(path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=csv_data[0].keys())
             writer.writeheader()
             writer.writerows(csv_data)
