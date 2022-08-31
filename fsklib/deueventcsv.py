@@ -69,7 +69,8 @@ class DeuMeldeformularCsv:
 
         # read categories
         try:
-            categories_dict = {}
+            categories_dict = {} # cat_name -> category
+            category_numbers = {} # (cat_type, cat_level) -> number
             cats_file = open(input_categories, 'r')
             cat_reader = csv.DictReader(cats_file)
             for cat_dict in cat_reader:
@@ -83,10 +84,22 @@ class DeuMeldeformularCsv:
 
                 if not cat_type or not cat_gender or not cat_level:
                     print('Warning: Unable to convert category following %s|%s|%s' % (cat_name, cat_name, cat_level))
+                    continue
+
+                if str(cat_name).startswith("Basic Novice"):
+                    cat_level = model.CategoryLevel.NOVICE_BASIC
+                elif str(cat_name).startswith("Intermediate Novice"):
+                    cat_level = model.CategoryLevel.NOVICE_INTERMEDIATE
+
+                if cat_level == model.CategoryLevel.NOTDEFINED:
+                    cat_level = model.CategoryLevel.SENIOR
+
+                if (cat_type, cat_level) in category_numbers:
+                    category_numbers[(cat_type, cat_level)] += 1
                 else:
-                    categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender)
-                    # categories_dict[cat_name] = {'Kategorie-Name' : cat_name, 'Kategorie-Typ' : cat_type, 'Kategorie-Geschlecht': cat_gender, 'Kategorie-Level': cat_level}
-        except Exception as e:
+                    category_numbers[(cat_type, cat_level)] = 0
+                categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender, category_numbers[(cat_type, cat_level)])
+            except Exception as e:
             print('Error while converting categories.')
             print(e)
         finally:

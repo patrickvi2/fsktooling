@@ -101,24 +101,27 @@ class CategoryType(DataEnum):
 class CategoryLevel(DataEnum):
     SENIOR = (0, 'S', '', 'Meisterklasse')
     JUNIOR = (1, 'J', 'JUNIOR', 'Juniorenklasse')
-    JUGEND = (None, 'J', 'JUNIOR', 'Jugendklasse')
-    NOVICE_ADVANCED = (2, 'V', 'ADVANOVICE', 'Nachwuchsklasse')
-    NOVICE_INTERMEDIATE = (3, 'I', 'INTENOVICE', 'Nachwuchsklasse')
-    NOVICE_BASIC = (4, 'R', 'BASENOVICE', 'Nachwuchsklasse')
+    JUGEND = (1, 'J', 'JUNIOR', 'Jugendklasse')
+    NOVICE_ADVANCED = (3, 'V', 'ADVNOV', 'Nachwuchsklasse')
+    NOVICE_INTERMEDIATE = (4, 'I', 'INTNOV', 'Nachwuchsklasse')
+    NOVICE_BASIC = (2, 'R', 'BASNOV', 'Nachwuchsklasse')
     ADULT = (5, 'O', 'ADULT', 'Adult')
-    MIXEDAGE = (6, 'O', 'MIXEDAGE', '')
-    OTHER = (None, 'O', '', 'Sonstige Wettbewerbe')
     NOTDEFINED = (None, 'O', '', 'nicht definiert')
+    MIXEDAGE = (6, 'O', 'MIXAGE', 'nicht definiert')
+    ELITE12 = (7, 'O', 'SENELI', 'Adult')
+    MASTERS = (8, 'O', 'MASTER', 'Adult')
+    OTHER = (None, 'O', '', 'Sonstige Wettbewerbe')
 
     def is_ISU_category(self) -> bool:
         return self.FSM() is not None
 
 class Category:
-    def __init__(self, name: str, category_type: CategoryType, category_level: CategoryLevel, gender: Gender) -> None:
+    def __init__(self, name: str, category_type: CategoryType, category_level: CategoryLevel, gender: Gender, number: int) -> None:
         self.name = name
         self.type = category_type
         self.level = category_level
         self.gender = gender
+        self.number = number
         self.segments = []
     
     def add_segment(self, segment: Segment):
