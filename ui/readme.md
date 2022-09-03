@@ -33,3 +33,11 @@ welches vom FS Manager gelesen werden kann.
         * Synchornized Teams > Import > Initial Download (complete)
         * erzeugte `DT_PARTIC_TEAMS.xml` auswählen
  
+### Einschränkungen
+1. Kategorienamen können nicht importiert werden
+2. Non-ISU-Kategorien werden als Senioren-Klasse angelegt
+3. alle Nachwuchskategorien werden "Advanced Novice" zugeordnet
+    - "Basic Novice" -> beginnt der Kategoriename mit "Basic Novice"
+    - "Intermediate Novice" -> beginnt der Kategoriename mit "Intermediate Novice"
+4. Jugendklasse wird der Juniorenklasse zugeordnet
+5. Synchronteams können keine Athleten zugeordnet werden
