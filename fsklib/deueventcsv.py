@@ -99,7 +99,7 @@ class DeuMeldeformularCsv:
                 else:
                     category_numbers[(cat_type, cat_level)] = 0
                 categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender, category_numbers[(cat_type, cat_level)])
-            except Exception as e:
+        except Exception as e:
             print('Error while converting categories.')
             print(e)
         finally:
