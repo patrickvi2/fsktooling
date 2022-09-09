@@ -169,10 +169,6 @@ class OdfParticOutput(OutputBase):
     def add_participant(self, participant: model.ParticipantBase) -> None:
         category = participant.cat
 
-        # skip adding persons to a category / segment, if it is not a ISU category
-        if not category.level.is_ISU_category():
-            return
-
         persons = []
         if type(participant) == model.ParticipantSingle:
             persons.append(participant.person)
