@@ -94,6 +94,7 @@ class Segment:
 class CategoryType(DataEnum):
     MEN = (0, 'S', 'SINGLES', 'Herren')
     WOMEN = (1, 'S', 'SINGLES', 'Damen')
+    SINGLES = (None, 'S', 'SINGLES', 'Einzellaufen')
     PAIRS = (2, 'P', 'PAIRS', 'Paarlaufen')
     ICEDANCE = (3, 'D', 'ICEDANCE', 'Eistanzen')
     SYNCHRON = (4, 'T', 'SYNCHRON', 'Synchron')
