@@ -268,7 +268,7 @@ class OdfParticOutput(OutputBase):
             "TVInitialName" : f"{first[0]}. {last.upper()}",
             "Gender" : person.gender.CALC(),
             "Organisation" : person.club.nation,
-            "BirthDate" : person.bday.strftime('%Y-%m-%d'),
+            "BirthDate" : person.bday.strftime('%Y-%m-%d') if person.bday else "",
             "Height" : "-",
             "MainFunctionId" : "AA01", # AA01 - accreditated athlete - comes from Olympia
             "Current" : "true",
