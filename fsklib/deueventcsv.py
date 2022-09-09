@@ -59,10 +59,13 @@ class DeuMeldeformularCsv:
             club_reader = csv.DictReader(clubs_file, delimiter=';')
 
             club_dict = {}
+            regions = set()
 
             for club in club_reader:
                 abbr = club['Abk.']
-                club_dict[abbr] = model.Club(club['Name'], abbr, club['Region'])
+                region = club['Region']
+                club_dict[abbr] = model.Club(club['Name'], abbr, region)
+                regions.add(region)
         except:
             print('Error while parsing clubs.')
         finally:
@@ -197,6 +200,8 @@ class DeuMeldeformularCsv:
 
                 if par_club_abbr in club_dict:
                     par_club = club_dict[par_club_abbr]
+                elif par_club_abbr in regions:
+                    par_club = model.Club("", "", par_club_abbr)
                 else:
                     print('Error: Club not found: "%s". Cannot derive nation for following athlete.')
                     print(athlete)
