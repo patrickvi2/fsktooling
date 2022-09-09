@@ -145,6 +145,7 @@ class DeuMeldeformularCsv:
                 par_bday = athlete['Geb. Datum'].strip()
                 par_bday = datetime.fromisoformat(par_bday).date() if par_bday else None
                 par_club_abbr = athlete['Vereinskürzel'].strip()
+                par_role = model.Role.from_value(athlete['Rolle'] if athlete['Rolle'] else 'TN', model.DataSource.DEU)
                 par_place_status = athlete['Platz/Status'].strip()
                 par_points = athlete['Punkte'].strip()
 
@@ -219,15 +220,15 @@ class DeuMeldeformularCsv:
                 # add participants
                 par = None
 
-                if cat_type in [model.CategoryType.MEN, model.CategoryType.WOMEN]:
-                    par = model.ParticipantSingle(person, cat)
+                if cat_type in [model.CategoryType.MEN, model.CategoryType.WOMEN, model.CategoryType.SINGLES]:
+                    par = model.ParticipantSingle(person, cat, par_role)
                 else: # couple or team
                     if cat_type == model.CategoryType.SYNCHRON:
                         if par_team_id in team_dict:
                             team_dict[par_team_id].team.persons.append(person)
                         else:
                             team = model.Team(par_team_id, par_team_name, person.club, [person])
-                            team_dict[par_team_id] = model.ParticipantTeam(team, cat)
+                            team_dict[par_team_id] = model.ParticipantTeam(team, cat, par_role)
                         continue # add teams in the end
                     else: # couple
                         if next_is_male_partner:
@@ -253,7 +254,7 @@ class DeuMeldeformularCsv:
                             else:
                                 couple = model.Couple(person, None)
                         if couple:
-                            couple_dict[par_team_id] = model.ParticipantCouple(couple, cat)
+                            couple_dict[par_team_id] = model.ParticipantCouple(couple, cat, par_role)
                         
                         if par_gender == model.Gender.MALE:
                             couple_dict[par_team_id].couple.partner_2 = person

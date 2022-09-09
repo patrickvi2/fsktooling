@@ -138,25 +138,46 @@ class Team:
         self.name = name # could be sys team name or couple name
         self.club = club # also holds the nation
         self.persons = persons # for couples or SYS
+
+
+class Role(DataEnum):
+    ATHLETE = (None, None, "AA01", "TN")   # AA01 - accreditated athlete (from Olympia)
+    CAPTAIN = (None, None, "AA01", "CP")
+    JUDGE = (None, None, "JU", "PR")
+    REFEREE = (None, None, "RE", "SR")
+    TECHNICAL_SPECIALIST = (None, None, "TCH_SPC", "TS")
+    TECHNICAL_CONTROLLER = (None, None, "TCH_CTR", "TC")
+    TECHNICAL_CONTROLLER_ICE = (None, None, "TCH_CTR", "TI")
+    DATA_OPERATOR = (None, None, "DOP", "DO")
+    VIDEO_OPERATOR = (None, None, "DOP", "RO")
+
+    @staticmethod
+    def check_data_source(data_source: DataSource):
+        if data_source == DataSource.FSM or \
+            data_source == DataSource.CALC:
+            raise Exception("Invalid input data source.")
+
+
 class ParticipantBase:
-    def __init__(self, category: Category, status = None, total_points = None) -> None:
+    def __init__(self, category: Category, role = None, status = None, total_points = None) -> None:
         self.cat = category
+        self.role = role
         self.status = status
         self.points = total_points
 
 class ParticipantSingle(ParticipantBase):
-    def __init__(self, person: Person, category: Category, status=None, total_points=None) -> None:
-        super().__init__(category, status, total_points)
+    def __init__(self, person: Person, category: Category, role = None, status = None, total_points = None) -> None:
+        super().__init__(category, role, status, total_points)
         self.person = person
 
 class ParticipantCouple(ParticipantBase):
-    def __init__(self, couple: Couple, category: Category, status=None, total_points=None) -> None:
-        super().__init__(category, status, total_points)
+    def __init__(self, couple: Couple, category: Category, role = None, status = None, total_points = None) -> None:
+        super().__init__(category, role, status, total_points)
         self.couple = couple
 
 class ParticipantTeam(ParticipantBase):
-    def __init__(self, team: Team, category: Category, status=None, total_points=None) -> None:
-        super().__init__(category, status, total_points)
+    def __init__(self, team: Team, category: Category, role = None, status = None, total_points = None) -> None:
+        super().__init__(category, role, status, total_points)
         self.team = team
 
 class Competition:

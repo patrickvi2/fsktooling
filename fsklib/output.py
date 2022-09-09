@@ -192,6 +192,9 @@ class OdfParticOutput(OutputBase):
             ET.SubElement(event_elem, "EventEntry", {**event_club_attrib, **{"Pos" : "2", "Value" : person.club.abbr}})
             accreditation_ids.append(par_elem.get('Code'))
 
+            if participant.role:
+                par_elem.attrib["MainFunctionId"] = participant.role.ODF()
+
         if type(participant) == model.ParticipantCouple:
             first1 = participant.couple.partner_1.first_name
             l = str('test').split()
@@ -270,7 +273,7 @@ class OdfParticOutput(OutputBase):
             "Organisation" : person.club.nation,
             "BirthDate" : person.bday.strftime('%Y-%m-%d') if person.bday else "",
             "Height" : "-",
-            "MainFunctionId" : "AA01", # AA01 - accreditated athlete - comes from Olympia
+            "MainFunctionId" : "AA01",
             "Current" : "true",
             "ModificationIndicator" : "N"
             }
