@@ -39,7 +39,7 @@ class DEUMeldeformularXLSX:
         self.overwrite = overwrite_output_files
         wb = None
         try:
-            wb = openpyxl.load_workbook(xlsx_path)
+            wb = openpyxl.load_workbook(xlsx_path, data_only=True)
         except  Exception as e:
             print('Unable to parse xlsx file.')
             raise e
