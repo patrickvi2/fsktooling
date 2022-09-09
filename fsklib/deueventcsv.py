@@ -47,7 +47,8 @@ class DeuMeldeformularCsv:
                 competition.organizer = comp_dict['Veranstalter']
                 competition.place = comp_dict['Ort']
                 competition.start = date.fromisoformat(comp_dict['Start Datum'])
-                competition.end = date.fromisoformat(comp_dict['End Datum'])
+                end = comp_dict['End Datum']
+                competition.end = date.fromisoformat(end) if end else competition.start
 
         for output in outputs:
             output.add_event_info(competition)
