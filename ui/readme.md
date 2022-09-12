@@ -16,7 +16,12 @@ welches vom FS Manager gelesen werden kann.
 2. Im FS Manager
     - neue Datenbank erstellen
     - Elemente aus FSM masterData einlesen
-    - Clubs und Nations aus DEUMeldeformularKonverter einlesen (./masterData/FSM/*.xml)
+    - Nationen aus DEUMeldeformularKonverter einlesen
+        * Nations > Import
+        * ./masterData/FSM/nations-DEU-Landesverbaende.xml
+    - Clubs aus DEUMeldeformularKonverter einlesen
+        * Clubs > Import
+        * ./masterData/FSM/clubs-DEU.xml
     - Flaggen kopieren 
         * ./masterData/FSM/flags/copyToFSM.bat ausführen
         * Alternativ die Flaggen von Hand im FSM hinzufügen
@@ -32,6 +37,9 @@ welches vom FS Manager gelesen werden kann.
     - Synchron-Teams einlesen
         * Synchornized Teams > Import > Initial Download (complete)
         * erzeugte `DT_PARTIC_TEAMS.xml` auswählen
+    - Offizielle aus DEUMeldeformularKonverter einlesen (falls nicht bereits vorhanden)
+        * People > Import > Initial Download (complete)
+        * ./masterData/FSM/officials-DEU.xml
  
 ### Einschränkungen
 1. Kategorienamen können nicht importiert werden
