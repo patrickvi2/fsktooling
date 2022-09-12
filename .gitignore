@@ -16,6 +16,4 @@
 __pycache__
 build/
 dist/
-!masterData/**/*.csv
-!masterData/**/*.png
-!masterData/**/*.xml
+!masterData/**
