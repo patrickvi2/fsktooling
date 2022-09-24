@@ -7,7 +7,7 @@ class Club:
         self.name = ''
         self.abbr = ''
         self.nation = ''
-    
+
     def __init__(self, name: str, abbreviation: str, nation: str) -> None:
         self.name = name
         self.abbr = abbreviation
@@ -27,7 +27,7 @@ class DataEnum(Enum):
         for member in cls.__members__.values():
             if member.value[data_source] == value:
                 return member
-    
+
     @staticmethod
     def check_data_source(data_source: DataSource):
         pass
@@ -35,18 +35,18 @@ class DataEnum(Enum):
     def __str__(self) -> str:
         return self.name.lower()
 
-    def getvalue(self, data_source: DataSource):
+    def _get_value(self, data_source: DataSource):
         self.check_data_source(data_source)
         return self.value[data_source]
 
     def FSM(self) -> int:
-        return self.getvalue(DataSource.FSM)
+        return self._get_value(DataSource.FSM)
     def CALC(self) -> str:
-        return self.getvalue(DataSource.CALC)
+        return self._get_value(DataSource.CALC)
     def ODF(self) -> str:
-        return self.getvalue(DataSource.ODF)
+        return self._get_value(DataSource.ODF)
     def DEU(self) -> str:
-        return self.getvalue(DataSource.DEU)
+        return self._get_value(DataSource.DEU)
 
 class Gender(DataEnum):
     MALE = (0, 'M', 'M')
@@ -99,6 +99,16 @@ class CategoryType(DataEnum):
     ICEDANCE = (3, 'D', 'ICEDANCE', 'Eistanzen')
     SYNCHRON = (4, 'T', 'SYNCHRON', 'Synchron')
 
+    def to_gender(self):
+        if self == CategoryType.WOMEN:
+            return Gender.FEMALE
+        elif self == CategoryType.MEN:
+            return Gender.MALE
+        elif self in [CategoryType.PAIRS, CategoryType.ICEDANCE, CategoryType.SYNCHRON]:
+            return Gender.TEAM
+        else:
+            raise Exception(f"Unable to determine gender for category type '{self}'.")
+
 class CategoryLevel(DataEnum):
     SENIOR = (0, 'S', '', 'Meisterklasse')
     JUNIOR = (1, 'J', 'JUNIOR', 'Juniorenklasse')
@@ -124,7 +134,7 @@ class Category:
         self.gender = gender
         self.number = number
         self.segments = []
-    
+
     def add_segment(self, segment: Segment):
         self.segments.append(segment)
 
@@ -183,7 +193,7 @@ class ParticipantTeam(ParticipantBase):
 class Competition:
     def __init__(self, name: str, organizer: str, place: str, start: datetime.date, end: datetime.date) -> None:
         self.name = name
-        self.organizer = organizer 
+        self.organizer = organizer
         self.place = place
         self.start = start
         self.end = end
