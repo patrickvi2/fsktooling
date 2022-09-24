@@ -1,8 +1,8 @@
 from datetime import date
 import xml.etree.ElementTree as ET
 
-from .. import model
-from ..output import ParticipantCsvOutput
+from fsklib import model
+from fsklib.output import ParticipantCsvOutput
 
 # settings / defines
 isucalcfs_xml_file_path = "BJM22/xml/BJM22-011.XML"
