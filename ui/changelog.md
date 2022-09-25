@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.2.2
+- fix gender for officials in master data ODF file
+- add license
+
 ## v0.2.1
 - add master data ODF file with all DEU officials
 - convert officials from input xlsx file
