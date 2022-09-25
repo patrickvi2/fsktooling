@@ -11,6 +11,7 @@ pyinstaller --onefile DEUMeldeformularKonverter.py
 REM copy additional files
 robocopy ..\masterData dist\masterData /S
 robocopy . dist\ *.md
+robocopy .. dist\ LICENSE
 
 REM create zip archive
 powershell -NoProfile -ExecutionPolicy Bypass -Command Compress-Archive dist/* %RELEASE_FILE%
