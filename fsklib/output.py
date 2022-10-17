@@ -182,7 +182,7 @@ class OdfParticOutput(OutputBase):
         accreditation_ids = []
         for person in persons:
             par_elem = self.competition_elem.find(f"./Participant/Discipline[@IFId='{person.id}']/..")
-            dis_elem = par_elem.getchildren()[0] # there is always only one child -> Discipline
+            dis_elem = list(par_elem)[0] # there is always only one child -> Discipline
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
             event_club_attrib = {
                 "Type" : "ER_EXTENDED",
