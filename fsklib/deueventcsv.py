@@ -21,10 +21,10 @@ output_odf_participant_dir = pathlib.Path('./GBB21Test/')
 class DeuMeldeformularCsv:
     # static member
     deu_category_to_gender = {'Herren' : model.Gender.MALE, 'Damen' : model.Gender.FEMALE, 'Einzellauf': model.Gender.FEMALE, 'Paarlaufen' : model.Gender.TEAM, 'Eistanzen' : model.Gender.TEAM, 'Synchron': model.Gender.TEAM}
-    
+
     def __init__(self) -> None:
         self.unknown_ids = { '888888' : 0, '999999' : 0 }
-    
+
 
     def convert(self, input_participants: str, input_clubs: str, input_categories: str, input_event_info: str, outputs: List[
         output.OutputBase]):
@@ -37,7 +37,7 @@ class DeuMeldeformularCsv:
         if not os.path.isfile(input_categories):
             print('Categories file not found.')
             return 3
-        
+
         competition = model.Competition("Test", "LV", "here", date.today(), date.today())
         if input_event_info:
             event_info_file = open(input_event_info, 'r')
@@ -81,7 +81,7 @@ class DeuMeldeformularCsv:
                 cat_name = cat_dict['Wettbewerb/Prüfung']
                 cat_deu_type = cat_dict['Disziplin']
                 cat_deu_level = cat_dict['Kategorie']
-                
+
                 cat_type = model.CategoryType.from_value(cat_deu_type, model.DataSource.DEU)
                 cat_gender = DeuMeldeformularCsv.deu_category_to_gender[cat_deu_type] if cat_deu_type in DeuMeldeformularCsv.deu_category_to_gender else model.Gender.FEMALE
                 cat_level = model.CategoryLevel.from_value(cat_deu_level, model.DataSource.DEU)
@@ -98,17 +98,18 @@ class DeuMeldeformularCsv:
                 if cat_level == model.CategoryLevel.NOTDEFINED:
                     cat_level = model.CategoryLevel.SENIOR
 
-                if (cat_type, cat_level) in category_numbers:
-                    category_numbers[(cat_type, cat_level)] += 1
+                cat_id = cat_type.ODF() + cat_level.ODF() + cat_gender.ODF()
+                if cat_id in category_numbers:
+                    category_numbers[cat_id] += 1
                 else:
-                    category_numbers[(cat_type, cat_level)] = 0
-                categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender, category_numbers[(cat_type, cat_level)])
+                    category_numbers[cat_id] = 0
+                categories_dict[cat_name] = model.Category(cat_name, cat_type, cat_level, cat_gender, category_numbers[cat_id])
         except Exception as e:
             print('Error while converting categories.')
             print(e)
         finally:
             cats_file.close()
-            
+
 
         try:
             pars_file = open(input_participants, 'r')
@@ -255,7 +256,7 @@ class DeuMeldeformularCsv:
                                 couple = model.Couple(person, None)
                         if couple:
                             couple_dict[par_team_id] = model.ParticipantCouple(couple, cat, par_role)
-                        
+
                         if par_gender == model.Gender.MALE:
                             couple_dict[par_team_id].couple.partner_2 = person
                         else:
@@ -294,8 +295,8 @@ class DeuMeldeformularCsv:
             pars_file.close()
 
 if __name__ == '__main__':
-    exit(DeuMeldeformularCsv().convert(input_DEU_participant_csv_file_path, 
-                                             input_DEU_club_csv_file_path, 
+    exit(DeuMeldeformularCsv().convert(input_DEU_participant_csv_file_path,
+                                             input_DEU_club_csv_file_path,
                                              input_DEU_categories_csv_file_path,
                                              input_DEU_competition_info_csv_file_path, [
                                                 # output.PersonCsvOutput(output_athletes_file_path),
