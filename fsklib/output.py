@@ -147,7 +147,7 @@ class ParticipantCsvOutput(OutputBase):
             print("No participants to write to CSV.")
             return
         # write data to csv
-        with open(self.path, 'w') as f:
+        with open(self.path, 'w', newline='', encoding='utf-8') as f:
             header = self.participant_csv_data[0].keys()
             csv_writer = csv.DictWriter(f, header)
             csv_writer.writeheader()
@@ -308,7 +308,7 @@ class OdfParticOutput(OutputBase):
                 root = ET.Element("OdfBody", odf_attribute)
                 root.insert(0, self.competition_elem)
                 write_xml(self.path, root, "DT_PARTIC.xml")
-            
+
             if len(self.competition_elem_couples):
                 odf_attribute["DocumentType"] = "DT_PARTIC_TEAMS"
                 root = ET.Element("OdfBody", odf_attribute)

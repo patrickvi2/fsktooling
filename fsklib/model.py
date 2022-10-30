@@ -78,7 +78,8 @@ class Person:
 class SegmentType(DataEnum):
     SP = (0, 'S', 'QUAL')
     FP = (1, 'F', 'FNL')
-    PD = (2, 'P', 'QUAL')
+    PDK = (2, 'P', 'QUAL') # pattern dance with key points
+    PD = (3, 'P', 'QUAL') # pettern dance witout key points
 
     @staticmethod
     def check_data_source(data_source: DataSource):
