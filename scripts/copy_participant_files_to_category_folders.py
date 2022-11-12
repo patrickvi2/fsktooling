@@ -248,7 +248,7 @@ if __name__ == "__main__":
     count_missing = 0
     count_ambiguous = 0
 
-    with open(input_csv_file_path, 'r') as f:
+    with open(input_csv_file_path, 'r', encoding='utf-8') as f:
         csv_list_dict = csv.DictReader(f)
         
         # copy csv data to participant list
@@ -397,7 +397,7 @@ if __name__ == "__main__":
     if participants_out:
         fieldnames = participants_out[0].keys()
         output_file_path = os.path.join(output_root_dir, 'participants.csv')
-        with open(output_file_path, 'w') as csv_file:
+        with open(output_file_path, 'w', encoding="utf-8", newline='') as csv_file:
             print("Writing csv file '%s'\n" %  output_file_path)
             writer = csv.DictWriter(csv_file, fieldnames)
             writer.writeheader()
