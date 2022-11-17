@@ -13,7 +13,7 @@ except ImportError:
 
 from fsklib.deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX
 from fsklib.deueventcsv import DeuMeldeformularCsv
-from fsklib.output import OdfParticOutput
+from fsklib.output import OdfParticOutput, ParticipantCsvOutput
 
 def root_dir() -> pathlib.Path:
     if getattr(sys, 'frozen', False):
@@ -46,7 +46,7 @@ class TextHandler(logging.Handler):
         self.text.after(0, append)
 
 class converterUI(tk.Frame):
-    # This class defines the graphical user interface 
+    # This class defines the graphical user interface
 
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
@@ -74,7 +74,7 @@ class converterUI(tk.Frame):
         if not self.input_xlsx_path:
             logging.info('Fehler: Meldeformular-Datei auswählen!')
             return
-        
+
         logging.info("Meldeformular einlesen")
         try:
             deu_xlsx = DEUMeldeformularXLSX(self.input_xlsx_path)
@@ -99,7 +99,9 @@ class converterUI(tk.Frame):
                         master_data_dir() / "csv" / "clubs-DEU.csv",
                         deu_categories_csv,
                         deu_event_info_csv,
-                        [OdfParticOutput(output_path)])
+                        [OdfParticOutput(output_path),
+                         ParticipantCsvOutput(output_path / "csv" / "participants.csv")]
+                       )
 
         logging.info("Fertig!")
         logging.info("Generierte Dateien befinden sich hier: %s" % str(self.input_xlsx_path.parent))
@@ -147,13 +149,13 @@ class converterUI(tk.Frame):
 
         button_convert = ttk.Button(self, text='Konvertieren', command=self.convert_callback)
         button_convert.grid(column=1, row=3, sticky='e', padx=10, pady=10)
-        
+
         # Create textLogger
         text_handler = TextHandler(st)
 
         # Logging configuration
         logging.basicConfig(filename=f'{ui_name}.log',
-            level=logging.INFO, 
+            level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s')
 
         # Add the handler to logger
