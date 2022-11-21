@@ -96,7 +96,7 @@ class DeuMeldeformularCsv:
                     cat_level = model.CategoryLevel.NOVICE_INTERMEDIATE
 
                 if cat_level == model.CategoryLevel.NOTDEFINED:
-                    cat_level = model.CategoryLevel.SENIOR
+                    cat_level = model.CategoryLevel.NOVICE_ADVANCED
 
                 cat_id = cat_type.ODF() + cat_level.ODF() + cat_gender.ODF()
                 if cat_id in category_numbers:

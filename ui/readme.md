@@ -43,7 +43,7 @@ welches vom FS Manager gelesen werden kann.
  
 ### Einschränkungen
 1. Kategorienamen können nicht importiert werden
-2. Non-ISU-Kategorien werden als Senioren-Klasse angelegt
+2. Non-ISU-Kategorien werden als "Advanced Novice"-Kategorie angelegt
 3. alle Nachwuchskategorien werden "Advanced Novice" zugeordnet
     - "Basic Novice" -> beginnt der Kategoriename mit "Basic Novice"
     - "Intermediate Novice" -> beginnt der Kategoriename mit "Intermediate Novice"
