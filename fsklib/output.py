@@ -1,10 +1,12 @@
 import csv
 from datetime import date, datetime
+import os, shutil
 import pathlib
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from . import model
+from fsklib import model
+from fsklib.odf.rsc import RSC
 
 
 # virtual output base class - responsible for gathering infos and writing files
@@ -183,7 +185,7 @@ class OdfParticOutput(OutputBase):
         for person in persons:
             par_elem = self.competition_elem.find(f"./Participant/Discipline[@IFId='{person.id}']/..")
             dis_elem = list(par_elem)[0] # there is always only one child -> Discipline
-            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
+            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
             event_club_attrib = {
                 "Type" : "ER_EXTENDED",
                 "Code" : "CLUB"
@@ -318,15 +320,47 @@ class OdfParticOutput(OutputBase):
         else:
             print("OdfParticOutput: No persons found for writing. Skip creating file.")
 
-    @staticmethod
-    def get_discipline_code(category: model.Category):
+class EmptySegmentPdfOutput(OutputBase):
+    def __init__(self, dir_path: pathlib.Path, template_path: pathlib.Path, postfix = "JudgesDetailsperSkater") -> None:
+        super().__init__(dir_path)
+        self.categories = set()
+        self.template_path = template_path
+        self.postfix = "_" + postfix + ".pdf"
+        if not dir_path.exists():
+            os.mkdir(dir_path)
 
-        code = "FSK" + category.gender.ODF() + category.type.ODF()
-        code += "-" * (12 - len(code))
-        code += category.level.ODF()
-        code += "-" * (20 - len(code))
-        code += "%02d" % category.number if category.number else "--"
+    def add_event_info(self, competition_info: model.Competition) -> None:
+        pass
 
-        # add trailing dashes (discipline code always consists of 34 characters)
-        code += "-" * (34 - len(code))
-        return code
+    def add_person(self, model: model.Person) -> None:
+        pass
+
+    def add_participant(self, participant: model.ParticipantBase) -> None:
+        self.categories.add(participant.cat)
+
+    def write_file(self) -> None:
+        for category in self.categories:
+            segments = {}
+            def add_segment(segment: model.Segment):
+                if segment.type.ODF() not in segments:
+                    segments[segment.type.ODF()] = []
+                segments[segment.type.ODF()].append(segment)
+
+            if category.type == model.CategoryType.ICEDANCE:
+                if category.level in [model.CategoryLevel.NOVICE_ADVANCED, model.CategoryLevel.NOVICE_INTERMEDIATE, model.CategoryLevel.NOVICE_BASIC]:
+                    add_segment(model.Segment("Pflichttanz 1", "PD1", model.SegmentType.PD))
+                    add_segment(model.Segment("Pflichttanz 2", "PD2", model.SegmentType.PD))
+                else:
+                    add_segment(model.Segment("Rhythmustanz", "RT", model.SegmentType.SP))
+                add_segment(model.Segment("Kürtanz", "KT", model.SegmentType.FP))
+            else:
+                add_segment(model.Segment("Kurzprogramm", "KP", model.SegmentType.SP))
+                add_segment(model.Segment("Kür", "KR", model.SegmentType.FP))
+
+            for segment_key in segments:
+                for i, segment in enumerate(segments[segment_key]):
+                    rsc = RSC.get_discipline_code_with_segment(category, segment, i + 1)
+                    filename = rsc + self.postfix
+                    shutil.copy(self.template_path, self.path / filename)
+
+

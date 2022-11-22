@@ -13,7 +13,7 @@ except ImportError:
 
 from fsklib.deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX
 from fsklib.deueventcsv import DeuMeldeformularCsv
-from fsklib.output import OdfParticOutput, ParticipantCsvOutput
+from fsklib.output import OdfParticOutput, ParticipantCsvOutput, EmptySegmentPdfOutput
 
 def root_dir() -> pathlib.Path:
     if getattr(sys, 'frozen', False):
@@ -100,7 +100,8 @@ class converterUI(tk.Frame):
                         deu_categories_csv,
                         deu_event_info_csv,
                         [OdfParticOutput(output_path),
-                         ParticipantCsvOutput(output_path / "csv" / "participants.csv")]
+                         ParticipantCsvOutput(output_path / "csv" / "participants.csv"),
+                         EmptySegmentPdfOutput(output_path / "website", master_data_dir() / "FSM" / "website" / "empty.pdf")]
                        )
 
         logging.info("Fertig!")
