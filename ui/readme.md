@@ -40,6 +40,9 @@ welches vom FS Manager gelesen werden kann.
     - Offizielle aus DEUMeldeformularKonverter einlesen (falls nicht bereits vorhanden)
         * People > Import > Initial Download (complete)
         * ./masterData/FSM/officials-DEU.xml
+3. im Explorer
+    - leere PDF-Dateien in den Webseiten-Ordner kopieren (um falsch angezeigte Ergebnisse zu verhindern)
+    - Flaggen für FS Manager und Webseite kopieren (siehe masterData)
  
 ### Einschränkungen
 1. Kategorienamen können nicht importiert werden

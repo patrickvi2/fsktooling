@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.2.3
+- add flags for website
+- change default category to advanced novice
+- create empty pdf files for detailed judges scores
+- generate csv file with all participants
+- bugfixes
+    - split categories junior and jugend
+    - copy flags to FSM directory
+
 ## v0.2.2
 - fix gender for officials in master data ODF file
 - add license
