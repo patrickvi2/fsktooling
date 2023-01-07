@@ -230,7 +230,7 @@ class OdfParticOutput(OutputBase):
             team_id = f"{participant.couple.partner_1.id}-{participant.couple.partner_2.id}"
 
             dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
-            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
+            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
 
             self.accreditation_id += 1
         if type(participant) == model.ParticipantTeam:
@@ -249,7 +249,7 @@ class OdfParticOutput(OutputBase):
             team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
 
             dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : participant.team.id})
-            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : self.get_discipline_code(category)})
+            event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
             event_club_attrib = {
                 "Type" : "ER_EXTENDED",
                 "Code" : "CLUB"

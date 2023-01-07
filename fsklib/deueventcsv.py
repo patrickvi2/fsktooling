@@ -211,9 +211,9 @@ class DeuMeldeformularCsv:
                     continue
 
                 # avoide duplicate persons
+                person = model.Person(par_id, par_family_name, par_first_name, par_gender, par_bday, par_club)
                 if par_id not in par_ids:
                     # add athletes data
-                    person = model.Person(par_id, par_family_name, par_first_name, par_gender, par_bday, par_club)
                     for output in outputs:
                         output.add_person(person)
                     par_ids.add(par_id)
@@ -277,12 +277,14 @@ class DeuMeldeformularCsv:
 
             for couple in couple_dict.values():
                 if couple.couple.partner_1.id and couple.couple.partner_2.id:
-                    output.add_participant(couple)
+                    for output in outputs:
+                        output.add_participant(couple)
                 else:
                     print("Error: unable to add following couple: %s" % str(couple))
 
             for team in team_dict.values():
-                output.add_participant(team)
+                for output in outputs:
+                    output.add_participant(team)
 
             # write files
             for output in outputs:
