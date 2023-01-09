@@ -78,9 +78,9 @@ class DeuMeldeformularCsv:
             cats_file = open(input_categories, 'r')
             cat_reader = csv.DictReader(cats_file)
             for cat_dict in cat_reader:
-                cat_name = cat_dict['Wettbewerb/Prüfung']
-                cat_deu_type = cat_dict['Disziplin']
-                cat_deu_level = cat_dict['Kategorie']
+                cat_name = cat_dict['Wettbewerb/Prüfung'].strip()
+                cat_deu_type = cat_dict['Disziplin'].strip()
+                cat_deu_level = cat_dict['Kategorie'].strip()
 
                 cat_type = model.CategoryType.from_value(cat_deu_type, model.DataSource.DEU)
                 cat_gender = DeuMeldeformularCsv.deu_category_to_gender[cat_deu_type] if cat_deu_type in DeuMeldeformularCsv.deu_category_to_gender else model.Gender.FEMALE
@@ -146,7 +146,8 @@ class DeuMeldeformularCsv:
                 par_bday = athlete['Geb. Datum'].strip()
                 par_bday = datetime.fromisoformat(par_bday).date() if par_bday else None
                 par_club_abbr = athlete['Vereinskürzel'].strip()
-                par_role = model.Role.from_value(athlete['Rolle'] if athlete['Rolle'] else 'TN', model.DataSource.DEU)
+                par_role = athlete['Rolle'].strip()
+                par_role = model.Role.from_value(par_role if par_role else 'TN', model.DataSource.DEU)
                 par_place_status = athlete['Platz/Status'].strip()
                 par_points = athlete['Punkte'].strip()
 
@@ -240,9 +241,9 @@ class DeuMeldeformularCsv:
                         if couple_found:
                             # fix team id for couples
                             par_female_id = athlete_last['ID ( ehm. Sportpassnr.)'].strip()
-                            par_female_first_name = athlete_last['Vorname']
-                            par_female_family_name = athlete_last['Name']
-                            par_female_club_abbr = athlete_last['Vereinskürzel']
+                            par_female_first_name = athlete_last['Vorname'].strip()
+                            par_female_family_name = athlete_last['Name'].strip()
+                            par_female_club_abbr = athlete_last['Vereinskürzel'].strip()
                             par_female_bday = athlete_last['Geb. Datum'].strip()
                             par_female_bday = datetime.fromisoformat(par_female_bday).date() if par_female_bday else None
                             par_team_id = par_female_id + '-' + par_id
