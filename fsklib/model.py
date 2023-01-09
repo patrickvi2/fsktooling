@@ -64,7 +64,7 @@ class Person:
         self.first_name = ''
         self.family_name = ''
         self.gender = Gender.FEMALE
-        self.bday = datetime.date()
+        self.bday = datetime.date.today()
         self.club = Club()
 
     def __init__(self, id, family_name, first_name, gender: Gender, birthday: datetime.date, club: Club) -> None:

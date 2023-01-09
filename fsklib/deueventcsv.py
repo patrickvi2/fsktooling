@@ -25,6 +25,20 @@ class DeuMeldeformularCsv:
     def __init__(self) -> None:
         self.unknown_ids = { '888888' : 0, '999999' : 0 }
 
+    def convert_date(self, d: str) -> date:
+        if not d:
+            return date.today()
+        try:
+            return datetime.fromisoformat(d).date()
+        except:
+            try:
+                return datetime.strptime(d, "%d.%m.%Y").date()
+            except:
+                try:
+                    return datetime.strptime(d, "%d.%m.%y").date()
+                except:
+                    print(f"Unable to parse participant birthday '{d}'")
+                    return date.today()
 
     def convert(self, input_participants: str, input_clubs: str, input_categories: str, input_event_info: str, outputs: List[
         output.OutputBase]):
@@ -144,7 +158,7 @@ class DeuMeldeformularCsv:
                 par_family_name = athlete['Name'].strip()
                 par_first_name = athlete['Vorname'].strip()
                 par_bday = athlete['Geb. Datum'].strip()
-                par_bday = datetime.fromisoformat(par_bday).date() if par_bday else None
+                par_bday = self.convert_date(par_bday)
                 par_club_abbr = athlete['Vereinskürzel'].strip()
                 par_role = athlete['Rolle'].strip()
                 par_role = model.Role.from_value(par_role if par_role else 'TN', model.DataSource.DEU)
@@ -245,7 +259,7 @@ class DeuMeldeformularCsv:
                             par_female_family_name = athlete_last['Name'].strip()
                             par_female_club_abbr = athlete_last['Vereinskürzel'].strip()
                             par_female_bday = athlete_last['Geb. Datum'].strip()
-                            par_female_bday = datetime.fromisoformat(par_female_bday).date() if par_female_bday else None
+                            par_female_bday = self.convert_date(par_female_bday)
                             par_team_id = par_female_id + '-' + par_id
                             person_female = model.Person(par_female_id, par_female_family_name, par_female_first_name, 'F', par_female_bday, club_dict[par_female_club_abbr])
                             couple = model.Couple(person_female, None)
