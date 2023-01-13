@@ -18,20 +18,17 @@ welches vom FS Manager gelesen werden kann.
     - Elemente aus FSM masterData einlesen
     - Nationen aus DEUMeldeformularKonverter einlesen
         * Nations > Import
-        * ./masterData/FSM/nations-DEU-Landesverbaende.xml
+        * `./masterData/FSM/nations-DEU-Landesverbaende.xml`
     - Clubs aus DEUMeldeformularKonverter einlesen
         * Clubs > Import
-        * ./masterData/FSM/clubs-DEU.xml
-    - Flaggen kopieren 
-        * ./masterData/FSM/flags/copyToFSM.bat ausführen
-        * Alternativ die Flaggen von Hand im FSM hinzufügen
+        * `./masterData/FSM/clubs-DEU.xml`
     - Kategorien einlesen
         * Time Schedule > "Import Categories / Segments"
         * erzeugte `DT_PARTIC.xml` auswählen
     - Personen einlesen
         * People > Import > Initial Download (complete)
         * erzeugte `DT_PARTIC.xml` auswählen
-    - Paare & Eistänzer
+    - Paare & Eistänzer einlesen
         * Couples > Import > Initial Download (complete)
         * erzeugte `DT_PARTIC_TEAMS.xml` auswählen
     - Synchron-Teams einlesen
@@ -39,11 +36,17 @@ welches vom FS Manager gelesen werden kann.
         * erzeugte `DT_PARTIC_TEAMS.xml` auswählen
     - Offizielle aus DEUMeldeformularKonverter einlesen (falls nicht bereits vorhanden)
         * People > Import > Initial Download (complete)
-        * ./masterData/FSM/officials-DEU.xml
+        * `./masterData/FSM/officials-DEU.xml`
 3. im Explorer
-    - leere PDF-Dateien in den Webseiten-Ordner kopieren (um falsch angezeigte Ergebnisse zu verhindern)
-    - Flaggen für FS Manager und Webseite kopieren (siehe masterData)
- 
+    - Flaggen für FS Manager kopieren
+        * `./masterData/FSM/flags/copyToFSM.bat` ausführen
+        * alternativ können die Flaggen von Hand im FSM hinzufügt werden
+    - Flaggen für Webseite kopieren
+        * kopiere `./masterData/FSM/website/*.GIF` in den Ordner `flags` im Webseiten-Hauptordner 
+    - leere PDF-Dateien kopieren, um falsch angezeigte Ergebnisse zu verhindern
+        * während der Konvertierung des Meldeformulars wird neben der ausgewählten Excel-Datei der Ordner `website` erstellt
+        * kopiere `website/*.pdf` neben die `index.html` des entsprechenden Wettbewerbs 
+
 ### Einschränkungen
 1. Kategorienamen können nicht importiert werden
 2. Non-ISU-Kategorien werden als "Advanced Novice"-Kategorie angelegt

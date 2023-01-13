@@ -5,9 +5,12 @@
 - change default category to advanced novice
 - create empty pdf files for detailed judges scores
 - generate csv file with all participants
+- accept dates from excel as strings dd.mm.yyyy or dd.mm.yy
 - bugfixes
     - split categories junior and jugend
     - copy flags to FSM directory
+    - strip all data from excel cells
+    - export for couples and teams
 
 ## v0.2.2
 - fix gender for officials in master data ODF file
