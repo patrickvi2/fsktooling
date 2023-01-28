@@ -184,6 +184,11 @@ class DeuMeldeformularCsv:
                 cat_gender = cat.gender
                 cat_level = cat.level
 
+                if not (par_first_name and par_family_name) and not par_team_name:
+                    print('Warning: Athlete name or team name is missing.')
+                    print(athlete)
+                    print('Skipping athlete.')
+
                 # guess athlete gender
                 couple_found = False
                 par_gender = model.Gender.FEMALE # default e.g. for sys teams

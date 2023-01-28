@@ -184,6 +184,8 @@ class OdfParticOutput(OutputBase):
         accreditation_ids = []
         for person in persons:
             par_elem = self.competition_elem.find(f"./Participant/Discipline[@IFId='{person.id}']/..")
+            if par_elem is None:
+                continue
             dis_elem = list(par_elem)[0] # there is always only one child -> Discipline
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
             event_club_attrib = {
@@ -199,11 +201,10 @@ class OdfParticOutput(OutputBase):
 
         if type(participant) == model.ParticipantCouple:
             first1 = participant.couple.partner_1.first_name
-            l = str('test').split()
-            initials1 = ''.join([s[0] for s in first1.split()])
+            initials1 = ''.join([s[0] for s in first1.split()]) if first1.split() else ''
             last1 = participant.couple.partner_1.family_name.upper()
             first2 = participant.couple.partner_2.first_name
-            initials2 = ''.join([s[0] for s in first2.split()])
+            initials2 = ''.join([s[0] for s in first2.split()]) if first2.split() else ''
             last2 = participant.couple.partner_2.family_name.upper()
             nation = participant.couple.partner_1.club.nation
             if participant.couple.partner_1.club.nation != participant.couple.partner_2.club.nation:
@@ -261,6 +262,8 @@ class OdfParticOutput(OutputBase):
     def add_person(self, person: model.Person) -> None:
         first = person.first_name
         last = person.family_name
+        if not first or not last:
+            return
         participant_attrib = {
             "Code" : str(self.accreditation_id),
             "Parent" : str(self.accreditation_id),
