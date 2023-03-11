@@ -101,7 +101,7 @@ class DeuMeldeformularCsv:
                 cat_level = model.CategoryLevel.from_value(cat_deu_level, model.DataSource.DEU)
 
                 if not cat_type or not cat_gender or not cat_level:
-                    print('Warning: Unable to convert category following %s|%s|%s' % (cat_name, cat_name, cat_level))
+                    print('Warning: Unable to convert category following %s|%s|%s' % (cat_type, cat_gender, cat_level))
                     continue
 
                 if str(cat_name).startswith("Basic Novice"):
