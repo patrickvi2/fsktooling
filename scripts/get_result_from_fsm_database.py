@@ -22,6 +22,19 @@ data.append(["Wettbewerb/Prüfung",
              "Punkte"
 ])
 
+
+def fix_id(id: str) -> str:
+    try:
+        id_int = int(id)
+        if id_int >= 999999:
+            return "999999"
+        elif id_int >= 888888:
+            return "888888"
+        else:
+            return id
+    except:
+        return id
+
 # participant result from ODF messages
 cursor.execute("SELECT Id, Message, OdfMessageType, Version, CreationStamp "
                "FROM odfmessage "
@@ -52,15 +65,15 @@ for (odf_id, odf_message, odf_type, odf_message_version, odf_stamp) in list(curs
             # sys team
             res_desc = result.find("Competitor/Description")
             a = res_desc.attrib
-            d = [cat_name, a["IFId"], a["TeamName"], "", "", "", "", "", "TN", rank, points]
+            d = [cat_name, fix_id(a["IFId"]), a["TeamName"], "", "", "", "", "", "TN", rank, points]
             print(d)
             data.append(d)
         elif len(athletes) == 2:
             # team id for pairs / dance
-            team_id = "-".join([athlete.attrib["IFId"] for athlete in athletes])
+            team_id = "-".join([fix_id(athlete.attrib["IFId"]) for athlete in athletes])
         for athlete in athletes:
             a = athlete.attrib
-            d = [cat_name, team_id, "", a["IFId"], a["FamilyName"], a["GivenName"], a["BirthDate"], a["Organisation"], "TN", rank, points]
+            d = [cat_name, team_id, "", fix_id(a["IFId"]), a["FamilyName"], a["GivenName"], a["BirthDate"], a["Organisation"], "TN", rank, points]
             print(d)
             data.append(d)
 
