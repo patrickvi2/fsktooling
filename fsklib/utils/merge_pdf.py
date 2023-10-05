@@ -1,29 +1,19 @@
 import os
-from PyPDF4 import PdfFileReader, PdfFileWriter
+from pypdf import PdfWriter
+import traceback
 
 def pdf_cat(input_files, output_file_path):
-    input_streams = []
+    merger = PdfWriter()
 
-    with open(output_file_path, 'wb') as output_stream:
-        try:
-            # First open all the files, then produce the output file, and
-            # finally close the input files. This is necessary because
-            # the data isn't read from the input files until the write
-            # operation. Thanks to
-            # https://stackoverflow.com/questions/6773631/problem-with-closing-python-pypdf-writing-getting-a-valueerror-i-o-operation/6773733#6773733
-            for input_file in input_files:
-                input_streams.append(open(input_file, 'rb'))
-            writer = PdfFileWriter()
-            for reader in map(PdfFileReader, input_streams):
-                    for n in range(reader.getNumPages()):
-                        writer.addPage(reader.getPage(n))
-            writer.write(output_stream)
-        except:
-            print('Error: Unable to write to pdf file "' + output_file_path + '"')
-        finally:
-            for f in input_streams:
-                f.close()
-            output_stream.close()
+    try:
+        for pdf in input_files:
+            merger.append(pdf)
+
+        merger.write(output_file_path)
+    except:
+            traceback.print_exc()
+    finally:
+        merger.close()
 
 def pdf_cat_dir(directory, output_file_name):
     def is_pdf_file(file_name):
