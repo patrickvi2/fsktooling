@@ -10,6 +10,7 @@ except ImportError:
     import Tkinter as tk # Python 2.x
     import ScrolledText
     # TODO python2
+import mysql.connector
 
 from fsklib.deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX
 from fsklib.deueventcsv import DeuMeldeformularCsv
@@ -50,7 +51,6 @@ class converterUI(tk.Frame):
 
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.root = parent
         self.build_gui()
         self.input_xlsx_path = pathlib.Path()
 
@@ -121,9 +121,6 @@ class converterUI(tk.Frame):
 
     def build_gui(self):
         # Build GUI
-        ui_name = pathlib.Path(__file__).stem
-        self.root.title(ui_name)
-        self.root.option_add('*tearOff', 'FALSE')
         self.pack(fill = 'both', expand = True, padx = 10, pady = 10)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
@@ -155,6 +152,7 @@ class converterUI(tk.Frame):
         text_handler = TextHandler(st)
 
         # Logging configuration
+        ui_name = pathlib.Path(__file__).stem
         logging.basicConfig(filename=f'{ui_name}.log',
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -164,9 +162,118 @@ class converterUI(tk.Frame):
         logger.addHandler(text_handler)
 
 
+class databaseExtractorUI(tk.Frame):
+    # This class defines the graphical user interface
+
+    def __init__(self, parent, *args, **kwargs):
+        tk.Frame.__init__(self, parent, *args, **kwargs)
+        self.build_gui()
+        self.input_xlsx_path = pathlib.Path()
+
+    def file_dialog(self, file_extensions, file_type, function):
+        # show the open file dialog
+        if file_type == 'r':
+            f = filedialog.askopenfilename(filetypes=file_extensions)
+        else:
+            f = filedialog.asksaveasfilename(filetypes=file_extensions)
+        function(f)
+
+    def open_csv(self, file_name):
+        self.input_output_file.delete(1.0, tk.END)
+        self.input_xlsx_path = pathlib.Path(file_name)
+        self.input_output_file.insert('1.0', self.input_xlsx_path)
+
+    def file_dialog_set_text(self, file_extensions, file_type):
+        self.file_dialog(file_extensions, file_type, self.open_csv)
+
+    def logic(self):
+        print("Hallo")
+
+    def extract_callback(self):
+        self.logic()
+
+    def read_database_names(self) -> list:
+        # con = mysql.connector.connect(user=self.input_user.get(), password=self.input_pw.get(), host=self.input_host.get())
+
+        # cursor = con.cursor()
+        # cursor.execute("SHOW DATABASES")
+        # l = cursor.fetchall()
+        # l = [ i[0] for i in l ]
+        # print(l)
+        # return l
+        return ["test", "cmp1", "event2"]
+
+    def update_database_names(self):
+        l = self.read_database_names()
+        self.drop.set_menu(l[0], *l)
+
+    def add_row_to_layout(self, row_index, label, input_variable, input_default, button=None):
+        label_variable = tk.Label(self, text=label)
+        label_variable.grid(column=0, row=row_index, sticky='nw', padx=10)
+
+        input_variable = tk.Entry(self, text=tk.StringVar(self, input_default))
+        input_variable.grid(column=1, row=row_index, sticky='nsew', padx=10)
+        if button:
+            button.grid(column=2, row=row_index, sticky='nsew', padx=10)
+
+    def build_gui(self):
+        # Build GUI
+        self.pack(fill = 'both', expand = True, padx = 10, pady = 10)
+        self.grid_columnconfigure(0, weight=1)
+
+        row_index = 0
+        file_extensions = (
+            ('CSV-Datei', '*.csv'),
+            ('All files', '*.*')
+        )
+        button = ttk.Button(self, text="Auswählen", command=lambda: self.file_dialog_set_text(file_extensions, "w") )
+        self.input_output_file = None
+        self.add_row_to_layout(row_index, "Ausgabe-Datei", self.input_output_file, "Ergebnis.csv", button)
+
+        row_index += 1 # next row in layout
+        self.input_user = None
+        self.add_row_to_layout(row_index, "Datenbank-Nutzer", self.input_user, "sa")
+
+        row_index += 1 # next row in layout
+        self.input_pw = None
+        self.add_row_to_layout(row_index, "Datenbank-Passwort", self.input_pw, "fsmanager")
+
+        row_index += 1 # next row in layout
+        self.input_host = None
+        self.add_row_to_layout(row_index, "Datenbank-Adresse", self.input_host, "127.0.0.1")
+
+        row_index += 1 # next row in layout
+        self.label_database = tk.Label(self, text="Datenbank-Name")
+        self.label_database.grid(column=0, row=row_index, sticky="nw", padx=10)
+
+        # Create Dropdown menu for database names
+        self.drop = ttk.OptionMenu( self , tk.StringVar(), default=None , *[] )
+        self.update_database_names()
+        self.drop.grid(column=1, row=row_index, sticky='nw', padx=10)
+
+        button_update_database_names = ttk.Button(self, text="Aktualisieren", command=lambda: self.update_database_names() )
+        button_update_database_names.grid(column=2, row=row_index, sticky='nw', padx=10)
+
+        row_index += 1 # next row in layout
+        button_extract = ttk.Button(self, text='Extrahieren', command=self.extract_callback)
+        button_extract.grid(column=2, row=row_index, sticky='se', padx=10, pady=10)
+
+        self.grid_rowconfigure(row_index, weight=1)
+
+
 def main():
     root = tk.Tk()
-    converterUI(root)
+    tabControl = ttk.Notebook(root)
+    ui_name = pathlib.Path(__file__).stem
+    root.title(ui_name)
+    root.option_add('*tearOff', 'FALSE')
+    tab1 = converterUI(tabControl)
+    # tab2 = ttk.Frame(tabControl)
+    tab3 = databaseExtractorUI(tabControl)
+    tabControl.add(tab1, text="Meldelisten-Konverter")
+    # tabControl.add(tab2, text="PPC-Konverter")
+    tabControl.add(tab3, text="FSM-Datenbank auslesen")
+    tabControl.pack(expand=1, fill="both")
     root.mainloop()
 
 if __name__ == "__main__":
