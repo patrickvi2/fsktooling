@@ -15,6 +15,7 @@ import mysql.connector
 from fsklib.deuxlsxforms import ConvertedOutputType, DEUMeldeformularXLSX
 from fsklib.deueventcsv import DeuMeldeformularCsv
 from fsklib.output import OdfParticOutput, ParticipantCsvOutput, EmptySegmentPdfOutput
+from fsklib.fsm.result import extract
 
 def root_dir() -> pathlib.Path:
     if getattr(sys, 'frozen', False):
@@ -51,8 +52,8 @@ class converterUI(tk.Frame):
 
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.build_gui()
         self.input_xlsx_path = pathlib.Path()
+        self.build_gui()
 
     def file_dialog(self, file_extensions, file_type, function):
         # show the open file dialog
@@ -63,9 +64,9 @@ class converterUI(tk.Frame):
         function(f)
 
     def open_xlsx(self, file_name):
-        self.input.delete(1.0, tk.END)
+        self.input.delete(0, tk.END)
         self.input_xlsx_path = pathlib.Path(file_name)
-        self.input.insert('1.0', self.input_xlsx_path)
+        self.input.insert(0, self.input_xlsx_path)
 
     def file_dialog_set_text(self, file_extensions, file_type):
         self.file_dialog(file_extensions, file_type, self.open_xlsx)
@@ -130,10 +131,11 @@ class converterUI(tk.Frame):
             ('All files', '*.*')
         )
 
-        self.input = tk.Text(self, height=1)
+        self.input = tk.Entry(self)
         self.input.pack(expand=True)
         self.input.grid(column=0, row=0, sticky='nsew')
-        self.input.insert('1.0', 'DEU Meldeformular (.xlsx)')
+        self.input.insert(0, 'DEU Meldeformular (.xlsx)')
+        self.open_xlsx(self.input.get())
         button = ttk.Button(self, text="Auswählen", command=lambda: self.file_dialog_set_text(file_extensions, "r") )
         button.grid(column=1, row=0, sticky='nsew', padx=10)
 
@@ -167,8 +169,8 @@ class databaseExtractorUI(tk.Frame):
 
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.build_gui()
         self.input_xlsx_path = pathlib.Path()
+        self.build_gui()
 
     def file_dialog(self, file_extensions, file_type, function):
         # show the open file dialog
@@ -178,36 +180,71 @@ class databaseExtractorUI(tk.Frame):
             f = filedialog.asksaveasfilename(filetypes=file_extensions)
         function(f)
 
-    def open_csv(self, file_name):
-        self.input_output_file.delete(1.0, tk.END)
+    def open_xlsx(self, file_name):
+        self.input_output_file.delete(0, tk.END)
         self.input_xlsx_path = pathlib.Path(file_name)
-        self.input_output_file.insert('1.0', self.input_xlsx_path)
+        self.input_output_file.insert(0, self.input_xlsx_path)
 
     def file_dialog_set_text(self, file_extensions, file_type):
-        self.file_dialog(file_extensions, file_type, self.open_csv)
+        self.file_dialog(file_extensions, file_type, self.open_xlsx)
 
     def logic(self):
-        print("Hallo")
+        con = self.get_database_connection()
+        con.cursor().execute(f"USE `{self.drop_db_selection.get()}`")
+        extract(con, self.input_xlsx_path, self.drop_comp_selection.get())
 
     def extract_callback(self):
         self.logic()
 
-    def read_database_names(self) -> list:
-        # con = mysql.connector.connect(user=self.input_user.get(), password=self.input_pw.get(), host=self.input_host.get())
+    def get_database_connection(self):
+        return mysql.connector.connect(user=self.input_user.get(), password=self.input_pw.get(), host=self.input_host.get())
 
-        # cursor = con.cursor()
-        # cursor.execute("SHOW DATABASES")
-        # l = cursor.fetchall()
-        # l = [ i[0] for i in l ]
-        # print(l)
-        # return l
-        return ["test", "cmp1", "event2"]
+    def read_database_names(self) -> list:
+        try:
+            con = self.get_database_connection()
+        except:
+            return []
+
+        if con:
+            cursor = con.cursor()
+            cursor.execute("SHOW DATABASES")
+            l = cursor.fetchall()
+            l = [ i[0] for i in l ]
+            return l
+        else:
+            return []
+
+    def read_competition_names(self) -> list:
+        try:
+            con = self.get_database_connection()
+            con.cursor().execute(f"USE `{self.drop_db_selection.get()}`")
+        except:
+            return []
+
+        if con:
+            cursor = con.cursor()
+            cursor.execute("SELECT ShortName FROM competition")
+            l = cursor.fetchall()
+            l = [ i[0] for i in l ]
+            return l
+        else:
+            return []
 
     def update_database_names(self):
         l = self.read_database_names()
-        self.drop.set_menu(l[0], *l)
+        if len(l):
+            self.drop_db.set_menu(l[0], *l)
+        else:
+            self.drop_db.set_menu('', *[''])
 
-    def add_row_to_layout(self, row_index, label, input_variable, input_default, button=None):
+    def update_competition_names(self, *args):
+        l = self.read_competition_names()
+        if len(l):
+            self.drop_comp.set_menu(l[0], *l)
+        else:
+            self.drop_comp.set_menu('', *[''])
+
+    def add_row_to_layout(self, row_index, label, input_default, button=None):
         label_variable = tk.Label(self, text=label)
         label_variable.grid(column=0, row=row_index, sticky='nw', padx=10)
 
@@ -216,6 +253,8 @@ class databaseExtractorUI(tk.Frame):
         if button:
             button.grid(column=2, row=row_index, sticky='nsew', padx=10)
 
+        return input_variable
+
     def build_gui(self):
         # Build GUI
         self.pack(fill = 'both', expand = True, padx = 10, pady = 10)
@@ -223,36 +262,45 @@ class databaseExtractorUI(tk.Frame):
 
         row_index = 0
         file_extensions = (
-            ('CSV-Datei', '*.csv'),
+            ('Excel-Datei', '*.xlsx'),
             ('All files', '*.*')
         )
         button = ttk.Button(self, text="Auswählen", command=lambda: self.file_dialog_set_text(file_extensions, "w") )
-        self.input_output_file = None
-        self.add_row_to_layout(row_index, "Ausgabe-Datei", self.input_output_file, "Ergebnis.csv", button)
+        self.input_output_file = self.add_row_to_layout(row_index, "Ausgabe-Datei", "Ergebnis.xlsx", button)
+        self.open_xlsx(self.input_output_file.get())
 
         row_index += 1 # next row in layout
-        self.input_user = None
-        self.add_row_to_layout(row_index, "Datenbank-Nutzer", self.input_user, "sa")
+        self.input_user = self.add_row_to_layout(row_index, "Datenbank-Nutzer", "sa")
 
         row_index += 1 # next row in layout
-        self.input_pw = None
-        self.add_row_to_layout(row_index, "Datenbank-Passwort", self.input_pw, "fsmanager")
+        self.input_pw = self.add_row_to_layout(row_index, "Datenbank-Passwort", "fsmanager")
 
         row_index += 1 # next row in layout
-        self.input_host = None
-        self.add_row_to_layout(row_index, "Datenbank-Adresse", self.input_host, "127.0.0.1")
+        self.input_host = self.add_row_to_layout(row_index, "Datenbank-Adresse", "127.0.0.1")
 
         row_index += 1 # next row in layout
         self.label_database = tk.Label(self, text="Datenbank-Name")
         self.label_database.grid(column=0, row=row_index, sticky="nw", padx=10)
 
         # Create Dropdown menu for database names
-        self.drop = ttk.OptionMenu( self , tk.StringVar(), default=None , *[] )
+        self.drop_db_selection = tk.StringVar()
+        self.drop_db = ttk.OptionMenu(self, self.drop_db_selection, default=None, *[])
         self.update_database_names()
-        self.drop.grid(column=1, row=row_index, sticky='nw', padx=10)
+        self.drop_db.grid(column=1, row=row_index, sticky='nw', padx=10)
+        self.drop_db_selection.trace("w", self.update_competition_names)
 
         button_update_database_names = ttk.Button(self, text="Aktualisieren", command=lambda: self.update_database_names() )
         button_update_database_names.grid(column=2, row=row_index, sticky='nw', padx=10)
+
+        row_index += 1 # next row in layout
+        self.label_database = tk.Label(self, text="Competition-Code")
+        self.label_database.grid(column=0, row=row_index, sticky="nw", padx=10)
+
+        # Create Dropdown menu for competition names
+        self.drop_comp_selection = tk.StringVar()
+        self.drop_comp = ttk.OptionMenu(self, self.drop_comp_selection, default=None, *[])
+        self.update_competition_names()
+        self.drop_comp.grid(column=1, row=row_index, sticky='nw', padx=10)
 
         row_index += 1 # next row in layout
         button_extract = ttk.Button(self, text='Extrahieren', command=self.extract_callback)
