@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0
+- add UI for extracting competition results from FSM MySQL database
+- update masterData for DEU officials and clubs
+- ignore rows in Meldeformular if no name is given
+- bugfixes:
+    - copy flags to correct fsm folder
+    - fix nation for M. Derpa
+
 ## v0.2.3
 - add flags for website
 - change default category to advanced novice
