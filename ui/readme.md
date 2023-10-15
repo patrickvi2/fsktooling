@@ -35,9 +35,16 @@ welches vom FS Manager gelesen werden kann.
         * Synchornized Teams > Import > Initial Download (complete)
         * erzeugte `DT_PARTIC_TEAMS.xml` auswählen
     - Offizielle aus DEUMeldeformularKonverter einlesen (falls nicht bereits vorhanden)
+        * Time Schedule > "Import Categories / Segments"
+        * `./masterData/FSM/officials-DEU.xml` auswählen
         * People > Import > Initial Download (complete)
-        * `./masterData/FSM/officials-DEU.xml`
-3. im Explorer
+        * `./masterData/FSM/officials-DEU.xml` auswählen
+    - Aktiven Wettbewerb wechseln
+        * Competition > Wettbewerb wählen > "Set as Current" aktivieren
+    - relevante Preisrichter dem aktuellen Wettbewerb zuweisen
+        * Officials > Wettbewerb auswählen > von "People" zu "Competition Officials" verschieben
+        * Officials > Segment auswählen > Preisrichter den Funktionen zuordnen
+3. im Datei-Explorer
     - Flaggen für FS Manager kopieren
         * `./masterData/FSM/flags/copyToFSM.bat` ausführen
         * alternativ können die Flaggen von Hand im FSM hinzufügt werden
