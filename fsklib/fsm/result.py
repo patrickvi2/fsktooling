@@ -22,8 +22,16 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
                  "Punkte"
     ])
 
-    
-    def fix_id(id: str) -> str:
+    def check_attribute(attributes: dict, key):
+        if not key in attributes:
+            return ""
+        return attributes[key]
+
+    def check_id(attributes: dict) -> str:
+        if not "IFId" in attributes:
+            return ""
+
+        id = attributes["IFId"]
         try:
             id_int = int(id)
             if id_int >= 999999:
@@ -34,6 +42,15 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
                 return id
         except:
             return id
+
+    def check_birthday(attributes: dict):
+        if not "BirthDate" in attributes:
+            return ""
+
+        try:
+            return date.fromisoformat(attributes["BirthDate"])
+        except:
+            return ""
 
     # participant result from ODF messages
     cursor.execute("SELECT Id, Message, OdfMessageType, Version, CreationStamp "
@@ -56,24 +73,29 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
             points = ""
             if "Rank" not in result.attrib:
                 rank = "zurückgezogen"
-            else:
+            elif "Result" in result.attrib:
                 rank = result.attrib["Rank"]
                 points = result.attrib["Result"]
+            else:
+                print(f"No points detected in {result}")
+                continue
+
             athletes = list(result.findall("Competitor/Composition/Athlete/Description"))
             team_id = ""
             if not athletes:
                 # sys team
                 res_desc = result.find("Competitor/Description")
                 a = res_desc.attrib
-                d = [cat_name, fix_id(a["IFId"]), a["TeamName"], "", "", "", "", "", "TN", rank, points]
+                d = [cat_name, check_id(a), check_attribute(a, "TeamName"), "", "", "", "", "", "TN", rank, points]
                 print(d)
                 data.append(d)
             elif len(athletes) == 2:
                 # team id for pairs / dance
-                team_id = "-".join([fix_id(athlete.attrib["IFId"]) for athlete in athletes])
+                team_id = "-".join([check_id(athlete.attrib) for athlete in athletes])
+
             for athlete in athletes:
                 a = athlete.attrib
-                d = [cat_name, team_id, "", fix_id(a["IFId"]), a["FamilyName"], a["GivenName"], date.fromisoformat(a["BirthDate"]), a["Organisation"], "TN", rank, points]
+                d = [cat_name, team_id, "", check_id(a), check_attribute(a, "FamilyName"), check_attribute(a, "GivenName"), check_birthday(a, "BirthDate"), check_attribute(a, "Organisation"), "TN", rank, points]
                 print(d)
                 data.append(d)
 
