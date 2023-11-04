@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.3.1
+- bugfixes:
+    - fix extracting people from database without ID
+    - do not extract LEV data to club column
+
 ## v0.3.0
 - add UI for extracting competition results from FSM MySQL database
 - update masterData for DEU officials and clubs
