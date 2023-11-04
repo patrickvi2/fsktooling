@@ -95,7 +95,7 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
 
             for athlete in athletes:
                 a = athlete.attrib
-                d = [cat_name, team_id, "", check_id(a), check_attribute(a, "FamilyName"), check_attribute(a, "GivenName"), check_birthday(a, "BirthDate"), check_attribute(a, "Organisation"), "TN", rank, points]
+                d = [cat_name, team_id, "", check_id(a), check_attribute(a, "FamilyName"), check_attribute(a, "GivenName"), check_birthday(a), check_attribute(a, "Organisation"), "TN", rank, points]
                 print(d)
                 data.append(d)
 
