@@ -4,7 +4,7 @@ from xml.etree import ElementTree as ET
 from datetime import date
 
 
-def extract(db_connection: mysql.connector.connection, output_file_path, competition_code=""):
+def extract(db_connection: mysql.connector.connection, output_file_path, competition_code="", debug=False):
 
     cursor = db_connection.cursor()
     processed_categories = []
@@ -65,7 +65,8 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
         if cat_name in processed_categories:
             continue
 
-        print(cat_name)
+        if debug:
+            print(cat_name)
         processed_categories.append(cat_name)
 
         for result in root.findall("Competition/Result"):
@@ -87,17 +88,35 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
                 res_desc = result.find("Competitor/Description")
                 a = res_desc.attrib
                 d = [cat_name, check_id(a), check_attribute(a, "TeamName"), "", "", "", "", "", "TN", rank, points]
-                print(d)
+                if debug:
+                    print(d)
                 data.append(d)
             elif len(athletes) == 2:
                 # team id for pairs / dance
                 team_id = "-".join([check_id(athlete.attrib) for athlete in athletes])
+                if len(team_id) < 11:
+                    team_id = ""
 
             for athlete in athletes:
                 a = athlete.attrib
-                d = [cat_name, team_id, "", check_id(a), check_attribute(a, "FamilyName"), check_attribute(a, "GivenName"), check_birthday(a), "", "TN", rank, points]
-                print(d)
-                data.append(d)
+                family_name = check_attribute(a, "FamilyName")
+                given_name = check_attribute(a, "GivenName")
+                d = [cat_name, team_id, "", check_id(a), family_name, given_name, check_birthday(a), "", "TN", rank, points]
+                if debug:
+                    print(d)
+                error = False
+                if not rank and not points:
+                    print("Warning - No result for:")
+                    error = True
+                if not family_name or not given_name:
+                    print("Warning - Family name or given name is missing for:")
+                    error = True
+
+                if error:
+                    print(d)
+                    print("Skipping athlete!")
+                else:
+                    data.append(d)
 
 
     map_officials_from_FSM_to_DEU = {0 : "SR",
@@ -123,18 +142,21 @@ def extract(db_connection: mysql.connector.connection, output_file_path, competi
     cursor.execute(f"SELECT Id, Name, Level, Type, SortOrder FROM category WHERE Competition_Id = {str(competition_id)}")
     for (cat_id, cat_name, cat_level, cat_type, cat_order) in list(cursor):
         cursor.execute("SELECT Id, Name, ShortName, SegmentType FROM segment WHERE Category_Id = " + str(cat_id))
-        print(cat_name)
+        if debug:
+            print(cat_name)
 
         for (seg_id, seg_name, seg_short_name, seg_type) in list(cursor):
             cursor.execute("SELECT person.FederationId, person.FirstName, person.LastName, person.BirthDate, officialinsegment.OfficialFunction "
                            "FROM officialinsegment "
                            "    JOIN person ON person.id = officialinsegment.Person_Id "
                           f"WHERE officialinsegment.Segment_Id = {str(seg_id)} ")
-            print(seg_name)
+            if debug:
+                print(seg_name)
 
             for (fed_id, first_name, last_name, birthday, function) in list(cursor):
                 d = (cat_name, "", "", fed_id, last_name, first_name, birthday, "", map_officials_from_FSM_to_DEU[function], "", "")
-                print(d)
+                if debug:
+                    print(d)
                 official_data.add(d)
 
     data.extend([list(d) for d in official_data])

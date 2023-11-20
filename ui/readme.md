@@ -54,12 +54,13 @@ welches vom FS Manager gelesen werden kann.
         * während der Konvertierung des Meldeformulars wird neben der ausgewählten Excel-Datei der Ordner `website` erstellt
         * kopiere `website/*.pdf` neben die `index.html` des entsprechenden Wettbewerbs
 
-### Anleitung zum Auslesen desr Ergebnisse eines Wettbewerbes
+### Anleitung zum Auslesen der Ergebnisse eines Wettbewerbes
 1. Zum Tab "FSM-Datenbank auslesen" wechseln
 2. Ausgabe-Datei auswählen
 3. ggf. Standardeinstellungen für die Datenbankanbindung anpassen und auf "Aktualisieren" drücken, um die Verbindung zu testen
 4. Datenbank und Wettbewerb auswählen
 5. "Extrahieren" drücken
+6. Erzeugte Excel-Datei öffnen und den Inhalt an die entsprechende Stelle im DEU-Meldeformular kopieren
 
 ### Einschränkungen
 1. Kategorienamen können nicht importiert werden
