@@ -192,6 +192,7 @@ class databaseExtractorUI(tk.Frame):
         con = self.get_database_connection()
         con.cursor().execute(f"USE `{self.drop_db_selection.get()}`")
         extract(con, self.input_xlsx_path, self.drop_comp_selection.get())
+        print(f"Ergebnisse nach {self.input_xlsx_path.resolve()} extrahiert!")
 
     def extract_callback(self):
         self.logic()
