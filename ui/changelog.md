@@ -1,9 +1,13 @@
 # Changelog
 
 ## v0.3.1
+- skip athletes with incomplete name or result
+- print location of extracted file
+- remove debug messages from log
 - bugfixes:
     - fix extracting people from database without ID
     - do not extract LEV data to club column
+    - remove team id if incomplete
 
 ## v0.3.0
 - add UI for extracting competition results from FSM MySQL database
