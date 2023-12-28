@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.3.2
+- bugfixes:
+    - read clubs from masterData with umlaut
+
 ## v0.3.1
 - skip athletes with incomplete name or result
 - print location of extracted file
