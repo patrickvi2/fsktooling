@@ -4,4 +4,4 @@ Die Daten wurden aus dem Browser kopiert, in eine Exel-Liste eingefügt und als 
 
 # Stand
 Aktueller Stand extrahiert am:
-- 05.02.2023 - 23 Uhr
+- 14.10.2023 - 18 Uhr
