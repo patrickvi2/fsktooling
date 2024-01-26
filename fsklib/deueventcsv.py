@@ -69,7 +69,7 @@ class DeuMeldeformularCsv:
 
         # read clubs
         try:
-            clubs_file = open(input_clubs, 'r')
+            clubs_file = open(input_clubs, 'r', encoding="utf-8")
             club_reader = csv.DictReader(clubs_file, delimiter=';')
 
             club_dict = {}
