@@ -5,6 +5,7 @@
     - read clubs from masterData with umlaut
     - nation for official corrected
     - add missing official
+    - create output folder if not existing
 
 ## v0.3.1
 - skip athletes with incomplete name or result
