@@ -80,7 +80,7 @@ for par in root.iter('Participant'):
         else:
             print(f"Unable to find {name}")
 
-with open("test.xml", "wb") as f:
-    t = ET.tostring(root, xml_declaration= True)
+with open("odf.xml", "w", encoding="utf-8") as f:
+    t = ET.tostring(root, xml_declaration=True, encoding="unicode")
     f.write(t)
 
