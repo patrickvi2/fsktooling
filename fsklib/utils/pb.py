@@ -5,8 +5,8 @@ import unicodedata
 from typing import List
 
 api_url = "https://deu-s.de/api/get_pb_for_skater?q="
-
-input_xml_file_path = "C:/SwissTiming/OVR/FSManager/Export/BM24/ODF/DT_PARTIC_UPDATE_24-01-23_03-02-58.xml"
+input_xml_file_path = "C:/SwissTiming/OVR/FSManager/Export/KBB24/ODF/DT_PARTIC_UPDATE_24-02-12_01-17-34.xml"
+is_debug = False
 
 # code
 tree = ET.parse(input_xml_file_path)
@@ -42,10 +42,6 @@ def parse_response(response: str) -> List[ET.Element]:
                             "Pos": xml_tag_l2,
                             "Value": str(resp[json_key_l1][json_key_l2]["points"])}
                 except Exception as e:
-                    # print(f"Error parsing json response for {name}")
-                    # print(type(resp))
-                    # print(resp)
-                    # print(e)
                     continue
                 xml_entries.append(ET.Element("EventEntry", attrib))
     return xml_entries
@@ -58,14 +54,16 @@ for par in root.iter('Participant'):
     event = par.find("./Discipline/RegisteredEvent[EventEntry]")
     if event:
         resp = get_pb_from_name(sname)
-        if "meta" in resp:
-            if sname != resp["meta"]["slug"]:
-                print(f"Unable to find {sname}")
-                continue
-
         entries = parse_response(resp)
         if entries:
-            print(f"found {name} -> {resp['meta']['name']}")
+            
+            # print matching names if not identical
+            if "meta" in resp:
+                if sname != resp["meta"]["slug"]:
+                    print(f"Found different name: {name} -> {resp['meta']['name']}")
+            elif is_debug:
+                print(f"found {name} -> {resp['meta']['name']}")
+
             for entry in reversed(entries):
                 search_string = "./EventEntry"
                 for key in entry.attrib:
