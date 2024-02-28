@@ -133,13 +133,13 @@ class DeuMeldeformularCsv:
 
             next_is_male_partner = False
             par_ids = set()
-            team_dict = {} # a map storing (team_id -> team participant), will be added at the end
 
             @dataclass
             class CoupleEntries:
                 couple: model.Couple
                 categories: Set[model.Category]
             couple_dict: Dict[str, CoupleEntries] = {} # safe a list of couple members (storing ID -> CoupleEntry)
+            team_dict: Dict[str, model.ParticipantTeam] = {}  # a map storing (team_id -> team participant), will be added at the end
             person_last = None
 
             for athlete in deu_athlete_reader:
@@ -307,7 +307,10 @@ class DeuMeldeformularCsv:
                         for output in outputs:
                             output.add_participant(model.ParticipantCouple(couple, couple_cat, model.Role.ATHLETE))
                 else:
-                    print("Error: unable to add following couple: %s" % str(couple))
+                    print("Error: Incomplete couple in category: %s" % str(couple.cat.name))
+                    persons = [person for person in [couple.couple.partner_1, couple.couple.partner_2] if person]
+                    for person in persons:
+                        print(f"Skipping {person.name}")
 
             for team in team_dict.values():
                 for output in outputs:

@@ -84,6 +84,14 @@ class Person:
         self.bday = birthday
         self.club = club
 
+    @property
+    def name(self) -> str:
+        names = [name for name in [self.first_name, self.family_name] if name]
+        if names:
+            return " ".join(names)
+        else:
+            return ""
+
 
 class SegmentType(DataEnum):
     SP = (0, 'S', 'QUAL')
