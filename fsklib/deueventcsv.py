@@ -134,7 +134,7 @@ class DeuMeldeformularCsv:
             par_ids = set()
             team_dict = {} # a map storing (team_id -> team participant), will be added at the end
             couple_dict = {} # safe a list of couple members (storing ID -> par), if partner is found -> create participant and delete from this list
-            athlete_last = None
+            person_last = None
 
             for athlete in deu_athlete_reader:
                 # print(par)
@@ -152,7 +152,7 @@ class DeuMeldeformularCsv:
                     check_field_names = False
 
                 par_category = athlete['Wettbewerb/Prüfung'].strip()
-                par_team_id = athlete['Team ID'].strip()
+                par_team_id = athlete['Team ID'].strip().replace(" ","")
                 par_team_name = athlete['Team Name'].strip()
                 par_id = athlete['ID ( ehm. Sportpassnr.)'].strip()
                 par_family_name = athlete['Name'].strip()
@@ -202,7 +202,7 @@ class DeuMeldeformularCsv:
                             print("Error: Unable to add couple. ID cannot be found in team id for following participant: %s" % str(athlete))
                             continue
                         if next_is_male_partner and par_gender == model.Gender.MALE:
-                            par_id_last = athlete_last['ID ( ehm. Sportpassnr.)'].strip()
+                            par_id_last = person_last.id
                             if par_team_id.startswith(par_id_last):
                                 couple_found = True
                         next_is_male_partner = False
@@ -217,7 +217,7 @@ class DeuMeldeformularCsv:
                     if cat_gender != model.Gender.TEAM: # single skater -> use category gender
                         par_gender = cat_gender
                     if next_is_male_partner:
-                        print('Error: Skipping athlete. No partner can be found for: %s' % str(athlete_last))
+                        print('Error: Skipping athlete. No partner can be found for: %s' % str(person_last))
                     next_is_male_partner = False
 
                 if par_club_abbr in club_dict:
@@ -253,21 +253,14 @@ class DeuMeldeformularCsv:
                         continue # add teams in the end
                     else: # couple
                         if next_is_male_partner:
-                            athlete_last = athlete
+                            person_last = person
                             continue
-                        # couple without team id
+
                         couple = None
-                        if couple_found:
+                        if couple_found:  # couple without team id
                             # fix team id for couples
-                            par_female_id = athlete_last['ID ( ehm. Sportpassnr.)'].strip()
-                            par_female_first_name = athlete_last['Vorname'].strip()
-                            par_female_family_name = athlete_last['Name'].strip()
-                            par_female_club_abbr = athlete_last['Vereinskürzel'].strip()
-                            par_female_bday = athlete_last['Geb. Datum'].strip()
-                            par_female_bday = self.convert_date(par_female_bday)
-                            par_team_id = par_female_id + '-' + par_id
-                            person_female = model.Person(par_female_id, par_female_family_name, par_female_first_name, 'F', par_female_bday, club_dict[par_female_club_abbr])
-                            couple = model.Couple(person_female, None)
+                            par_team_id = person_last.id + '-' + par_id
+                            couple = model.Couple(person_last, None)
                             couple_found = False
                         elif par_team_id not in couple_dict:
                             if par_gender == model.Gender.MALE:
@@ -284,7 +277,7 @@ class DeuMeldeformularCsv:
 
                         continue # add couples in the end
 
-                athlete_last = athlete
+                person_last = person
 
                 if par == None:
                     print("Error: unable to create participant")
