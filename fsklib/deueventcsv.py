@@ -1,10 +1,11 @@
 import csv
+from dataclasses import dataclass
 from  datetime import date, datetime
 import os
 import pathlib
 import logging
 import traceback
-from typing import List
+from typing import Dict, List, Set
 
 from . import model, output
 
@@ -87,8 +88,8 @@ class DeuMeldeformularCsv:
 
         # read categories
         try:
-            categories_dict = {} # cat_name -> category
-            category_numbers = {} # (cat_type, cat_level) -> number
+            categories_dict: Dict[str, model.Category] = {} # cat_name -> category
+            category_numbers: Dict[str, int] = {} # str(cat_type + cat_level + cat_gender) -> number
             cats_file = open(input_categories, 'r')
             cat_reader = csv.DictReader(cats_file)
             for cat_dict in cat_reader:
@@ -133,7 +134,12 @@ class DeuMeldeformularCsv:
             next_is_male_partner = False
             par_ids = set()
             team_dict = {} # a map storing (team_id -> team participant), will be added at the end
-            couple_dict = {} # safe a list of couple members (storing ID -> par), if partner is found -> create participant and delete from this list
+
+            @dataclass
+            class CoupleEntries:
+                couple: model.Couple
+                categories: Set[model.Category]
+            couple_dict: Dict[str, CoupleEntries] = {} # safe a list of couple members (storing ID -> CoupleEntry)
             person_last = None
 
             for athlete in deu_athlete_reader:
@@ -260,15 +266,20 @@ class DeuMeldeformularCsv:
                         if couple_found:  # couple without team id
                             # fix team id for couples
                             par_team_id = person_last.id + '-' + par_id
-                            couple = model.Couple(person_last, None)
+                            couple = model.Couple(person_last, person)
                             couple_found = False
                         elif par_team_id not in couple_dict:
                             if par_gender == model.Gender.MALE:
                                 couple = model.Couple(None, person)
                             else:
                                 couple = model.Couple(person, None)
-                        if couple:
-                            couple_dict[par_team_id] = model.ParticipantCouple(couple, cat, par_role)
+                        else:
+                            couple_dict[par_team_id].categories.add(cat)
+                        if couple:  # new couple
+                            if par_team_id not in couple_dict:
+                                couple_dict[par_team_id] = CoupleEntries(couple, categories={cat})
+                            else:
+                                couple_dict[par_team_id].categories.add(cat)
 
                         if par_gender == model.Gender.MALE:
                             couple_dict[par_team_id].couple.partner_2 = person
@@ -288,10 +299,13 @@ class DeuMeldeformularCsv:
                 for output in outputs:
                     output.add_participant(par)
 
-            for couple in couple_dict.values():
-                if couple.couple.partner_1.id and couple.couple.partner_2.id:
-                    for output in outputs:
-                        output.add_participant(couple)
+            for couple_entries in couple_dict.values():
+                couple = couple_entries.couple
+                if (couple.partner_1 and couple.partner_2 and
+                        couple.partner_1.id and couple.partner_2.id):
+                    for couple_cat in couple_entries.categories:
+                        for output in outputs:
+                            output.add_participant(model.ParticipantCouple(couple, couple_cat, model.Role.ATHLETE))
                 else:
                     print("Error: unable to add following couple: %s" % str(couple))
 

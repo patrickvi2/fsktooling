@@ -42,7 +42,7 @@ class PersonCsvOutput(OutputBase):
         if self.persons:
             if not self.path.parent.exists():
                 self.path.parent.mkdir(parents=True)
-                
+
             with open(self.path, 'w') as f:
                 w = csv.writer(f, delimiter='|')
                 w.writerows(self.persons)
@@ -214,28 +214,31 @@ class OdfParticOutput(OutputBase):
             nation = participant.couple.partner_1.club.nation
             if participant.couple.partner_1.club.nation != participant.couple.partner_2.club.nation:
                 nation += "/" + participant.couple.partner_2.club.nation
-
-            team_attrib = {
-                "Code" : str(self.accreditation_id),
-                "Organisation" : nation,
-                "Number" : "1",
-                "Name" : f"{first1} {last1} / {first2} {last2}",
-                "ShortName" : f"{initials1} {last1} / {initials2} {last2}",
-                "TeamType" : "CPLW",
-                "TVTeamName" : f"{last1}/{last2}",
-                "Gender" : "X",
-                "Current" : "true",
-                "ModificationIndicator" : "N"
-                }
-
-            team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
-            comp_elem = ET.SubElement(team_elem, "Composition")
-            for count, id in enumerate(accreditation_ids, 1):
-                ET.SubElement(comp_elem, "Athlete", {"Code" : id, "Order": str(count)})
-
             team_id = f"{participant.couple.partner_1.id}-{participant.couple.partner_2.id}"
 
-            dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
+            dis_elem = self.competition_elem_couples.find(f"./Team/Discipline[@IFId='{team_id}']")
+            if dis_elem is None:
+                team_attrib = {
+                    "Code" : str(self.accreditation_id),
+                    "Organisation" : nation,
+                    "Number" : "1",
+                    "Name" : f"{first1} {last1} / {first2} {last2}",
+                    "ShortName" : f"{initials1} {last1} / {initials2} {last2}",
+                    "TeamType" : "CPLW",
+                    "TVTeamName" : f"{last1}/{last2}",
+                    "Gender" : "X",
+                    "Current" : "true",
+                    "ModificationIndicator" : "N"
+                    }
+
+                team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
+                comp_elem = ET.SubElement(team_elem, "Composition")
+                for count, id in enumerate(accreditation_ids, 1):
+                    ET.SubElement(comp_elem, "Athlete", {"Code" : id, "Order": str(count)})
+
+
+                dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
+
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
 
             self.accreditation_id += 1
