@@ -12,7 +12,7 @@ from fsklib.odf.rsc import RSC
 # virtual output base class - responsible for gathering infos and writing files
 class OutputBase:
     def __init__(self, file_path: pathlib.Path) -> None:
-        self.path = file_path
+        self.path = pathlib.Path(file_path)
     def add_event_info(self, competition_info: model.Competition) -> None:
         raise NotImplementedError()
     def add_person(self, model: model.Person) -> None:
@@ -40,6 +40,9 @@ class PersonCsvOutput(OutputBase):
 
     def write_file(self):
         if self.persons:
+            if not self.path.parent.exists():
+                self.path.parent.mkdir(parents=True)
+
             with open(self.path, 'w') as f:
                 w = csv.writer(f, delimiter='|')
                 w.writerows(self.persons)
@@ -149,6 +152,8 @@ class ParticipantCsvOutput(OutputBase):
             print("No participants to write to CSV.")
             return
         # write data to csv
+        if not self.path.parent.exists():
+            self.path.parent.mkdir(parents=True)
         with open(self.path, 'w', newline='', encoding='utf-8') as f:
             header = self.participant_csv_data[0].keys()
             csv_writer = csv.DictWriter(f, header)
@@ -209,28 +214,31 @@ class OdfParticOutput(OutputBase):
             nation = participant.couple.partner_1.club.nation
             if participant.couple.partner_1.club.nation != participant.couple.partner_2.club.nation:
                 nation += "/" + participant.couple.partner_2.club.nation
-
-            team_attrib = {
-                "Code" : str(self.accreditation_id),
-                "Organisation" : nation,
-                "Number" : "1",
-                "Name" : f"{first1} {last1} / {first2} {last2}",
-                "ShortName" : f"{initials1} {last1} / {initials2} {last2}",
-                "TeamType" : "CPLW",
-                "TVTeamName" : f"{last1}/{last2}",
-                "Gender" : "X",
-                "Current" : "true",
-                "ModificationIndicator" : "N"
-                }
-
-            team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
-            comp_elem = ET.SubElement(team_elem, "Composition")
-            for count, id in enumerate(accreditation_ids, 1):
-                ET.SubElement(comp_elem, "Athlete", {"Code" : id, "Order": str(count)})
-
             team_id = f"{participant.couple.partner_1.id}-{participant.couple.partner_2.id}"
 
-            dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
+            dis_elem = self.competition_elem_couples.find(f"./Team/Discipline[@IFId='{team_id}']")
+            if dis_elem is None:
+                team_attrib = {
+                    "Code" : str(self.accreditation_id),
+                    "Organisation" : nation,
+                    "Number" : "1",
+                    "Name" : f"{first1} {last1} / {first2} {last2}",
+                    "ShortName" : f"{initials1} {last1} / {initials2} {last2}",
+                    "TeamType" : "CPLW",
+                    "TVTeamName" : f"{last1}/{last2}",
+                    "Gender" : "X",
+                    "Current" : "true",
+                    "ModificationIndicator" : "N"
+                    }
+
+                team_elem = ET.SubElement(self.competition_elem_couples, "Team", team_attrib)
+                comp_elem = ET.SubElement(team_elem, "Composition")
+                for count, id in enumerate(accreditation_ids, 1):
+                    ET.SubElement(comp_elem, "Athlete", {"Code" : id, "Order": str(count)})
+
+
+                dis_elem = ET.SubElement(team_elem, "Discipline", {"Code" : self.disciplin, "IFId" : team_id})
+
             event_elem = ET.SubElement(dis_elem, "RegisteredEvent", {"Event" : RSC.get_discipline_code(category)})
 
             self.accreditation_id += 1
@@ -304,6 +312,9 @@ class OdfParticOutput(OutputBase):
                 "Source" : "FSKFSK1"
             }
 
+            if not self.path.parent.exists():
+                self.path.parent.mkdir(parents=True)
+
             def write_xml(path: pathlib.Path, root: ET.Element, name: str) -> None:
                 xmlstr = minidom.parseString(ET.tostring(root, xml_declaration= True)).toprettyxml(indent="  ")
                 with open(str(path / name), "w", encoding="utf-8") as f:
@@ -359,6 +370,9 @@ class EmptySegmentPdfOutput(OutputBase):
             else:
                 add_segment(model.Segment("Kurzprogramm", "KP", model.SegmentType.SP))
                 add_segment(model.Segment("Kür", "KR", model.SegmentType.FP))
+
+            if segments and not self.path.parent.exists():
+                self.path.parent.mkdir(parents=True)
 
             for segment_key in segments:
                 for i, segment in enumerate(segments[segment_key]):

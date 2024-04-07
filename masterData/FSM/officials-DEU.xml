@@ -346,6 +346,9 @@
     <Participant Code="9103" Parent="9103" Status="ACTIVE" GivenName="Falko" FamilyName="Kirsten" PrintName="Falko KIRSTEN" PrintInitialName="F KIRSTEN" TVName="Falko KIRSTEN" TVInitialName="F. KIRSTEN" Gender="M" Organisation="SAS" BirthDate="" Height="-" MainFunctionId="TCH_CTR" Current="true" ModificationIndicator="N">
       <Discipline Code="FSK-------------------------------" IFId="26001" />
     </Participant>
+    <Participant Code="9312" Parent="9312" Status="ACTIVE" GivenName="Anna Maria" FamilyName="Kistner" PrintName="Anna Maria KISTNER" PrintInitialName="A KISTNER" TVName="Anna Maria KISTNER" TVInitialName="A. KISTNER" Gender="F" Organisation="THR" BirthDate="" Height="-" MainFunctionId="JU" Current="true" ModificationIndicator="N">
+      <Discipline Code="FSK-------------------------------" IFId="39398" />
+    </Participant>
     <Participant Code="9104" Parent="9104" Status="ACTIVE" GivenName="Maxi" FamilyName="Klausnitzer" PrintName="Maxi KLAUSNITZER" PrintInitialName="M KLAUSNITZER" TVName="Maxi KLAUSNITZER" TVInitialName="M. KLAUSNITZER" Gender="F" Organisation="SAS" BirthDate="" Height="-" MainFunctionId="JU" Current="true" ModificationIndicator="N">
       <Discipline Code="FSK-------------------------------" IFId="33273" />
     </Participant>
