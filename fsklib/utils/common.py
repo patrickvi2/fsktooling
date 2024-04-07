@@ -2,8 +2,8 @@ import unicodedata
 
 
 # remove spaces, dashes, dots, commas and underscores in strings to make them comparable
-def normalize_string(s : str):
-    translation_table = str.maketrans('','',' -_.,')
+def normalize_string(s: str):
+    translation_table = str.maketrans("", "", " -_.,")
 
     # normalize unicode characters, remove characters, lowercase, ä -> ae, ö -> oe, ü -> ue
     return (
