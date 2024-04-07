@@ -1,10 +1,11 @@
 from dataclasses import dataclass
 import datetime
 from pathlib import Path
-from pypdf import PdfReader
 import traceback
 from typing import Any, Dict, List, Optional
 import xml.etree.ElementTree as ET
+
+from pypdf import PdfReader
 
 from fsklib.model import (
     Gender, Club, Person, Couple, Team,
@@ -23,7 +24,7 @@ class PPC:
 
 
 class PdfParserFunctionBase:
-    def __call__(fields: Optional[Dict[str, Any]]):
+    def __call__(self, fields: Optional[Dict[str, Any]]):
         pass
 
     @staticmethod
@@ -68,9 +69,10 @@ class PdfParserFunctionDeu(PdfParserFunctionBase):
         else:
             id = int(fields["ID"])
 
+        participant: ParticipantBase
         if cat.type is CategoryType.SYNCHRON:
             team_name = fields["Vorname"]["/V"] if fields["Vorname"]["/V"] else fields["Name"]["/V"]
-            team = Team(id, team_name, fields["Vorname"]["/V"], club)
+            team = Team(id, team_name, club)
             participant = ParticipantTeam(team, cat)
         else:
             person = Person(id, fields["Name"]["/V"], fields["Vorname"]["/V"], cat.gender, datetime.time(), club)
@@ -87,13 +89,19 @@ class PdfParserFunctionDeu(PdfParserFunctionBase):
                 person.gender = Gender.FEMALE
                 participant = ParticipantCouple(Couple(person, partner), cat)
 
-        elements_short = []
-        elements_long = []
+        elements_short: List[str] = []
+        elements_long: List[str] = []
         for segment, element_list in zip(['KP', 'KR'], [elements_short, elements_long]):
             for i in range(1, 17):
                 field_name = f"{segment}{i}"
-                if field_name in fields:
-                    element_list.append(fields[field_name]["/V"])
+                if field_name not in fields:
+                    continue
+                if "/V" not in fields[field_name]:
+                    continue
+
+                element = str(fields[field_name]["/V"]).strip()
+                if element:
+                    element_list.append(element)
 
         return PPC(participant, elements_short, elements_long)
 
@@ -108,7 +116,13 @@ class PdfParser:
         self.function = func
 
     def parse(self, file_path: Path) -> Optional[PPC]:
-        reader = PdfReader(file_path)
+        try:
+            reader = PdfReader(file_path)
+        except Exception:
+            print(f"Error while reading pdf file: {file_path}")
+            traceback.print_exc()
+            print()
+            return None
 
         fields = reader.get_fields()
         try:
@@ -133,7 +147,7 @@ class PdfParser:
 
     def ppcs_parse_dir(self, directory: Path, recursive=False) -> List[PPC]:
         if not directory.is_dir():
-            return
+            return []
 
         if recursive:
             glop_paths = directory.rglob("*.pdf")
@@ -154,18 +168,22 @@ class PpcOdfUpdater(OdfUpdater):
     def update(self, ppcs: List[PPC]) -> None:
         ppc_map: Dict[str, PPC] = {ppc.participant.get_normalized_name(): ppc for ppc in ppcs}
         count = 0
-        root = ET.parse(self.input_path).getroot()
-        for par in root.findall(".//Participant"):
-            name = normalize_string(par.attrib["PrintName"])
-            if name not in ppc_map:
+        if not self.root:
+            return
+
+        for par in self.root.findall(".//Participant"):
+            name = par.attrib["PrintName"]
+            sname = normalize_string(name)
+            if sname not in ppc_map:
+                print(f"Unable to find PPC for: {name}")
                 continue
 
-            print(name)
+            print(f"Found PPC for: {name}")
             count += 1
 
             event = par.find(".//RegisteredEvent")
             if event is not None:
-                ppc = ppc_map[name]
+                ppc = ppc_map[sname]
                 for element_list, odf_segment_name in zip(
                             [ppc.elements_short, ppc.elements_long],
                             ['ELEMENT_CODE_SHORT', 'ELEMENT_CODE_FREE']
@@ -176,7 +194,7 @@ class PpcOdfUpdater(OdfUpdater):
                         attrib = {
                             "Type": "ER_EXTENDED",
                             "Code": odf_segment_name,
-                            "POS": str(i),
+                            "Pos": str(i),
                             "Value": value}
 
                         ET.SubElement(event, "EventEntry", attrib)
@@ -185,8 +203,8 @@ class PpcOdfUpdater(OdfUpdater):
 if __name__ == '__main__':
     top_dir = Path('./BM24/PPCS/all/')
     parser = PdfParser(PdfParserFunctionBev())
-    ppcs = parser.ppcs_parse_dir(top_dir, recursive=True)
+    ppcs_list = parser.ppcs_parse_dir(top_dir, recursive=True)
 
     odf_file_name = Path("BM24/DT_PARTIC.xml")
     with PpcOdfUpdater(odf_file_name) as updater:
-        updater.update(ppcs)
+        updater.update(ppcs_list)

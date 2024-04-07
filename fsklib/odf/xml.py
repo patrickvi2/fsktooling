@@ -15,7 +15,7 @@ class OdfUpdater:
             self.output_path = self.input_path
         else:
             self.output_path = self.input_path.parent / (self.input_path.stem + suffix + self.input_path.suffix)
-        self.root = None
+        self.root: Optional[ET.ElementTree] = None
 
     def __enter__(self):
         self.root = ET.parse(self.input_path).getroot()
