@@ -182,8 +182,7 @@ class databaseExtractorUI(tk.Frame):
 
     def open_xlsx(self, file_name):
         self.input_output_file.delete(0, tk.END)
-        self.input_xlsx_path = pathlib.Path(file_name)
-        self.input_output_file.insert(0, self.input_xlsx_path)
+        self.input_output_file.insert(0, file_name)
 
     def file_dialog_set_text(self, file_extensions, file_type):
         self.file_dialog(file_extensions, file_type, self.open_xlsx)
@@ -191,10 +190,11 @@ class databaseExtractorUI(tk.Frame):
     def logic(self):
         con = self.get_database_connection()
         con.cursor().execute(f"USE `{self.drop_db_selection.get()}`")
-        extract(con, self.input_xlsx_path, self.drop_comp_selection.get())
-        print(f"Ergebnisse nach {self.input_xlsx_path.resolve()} extrahiert!")
+        extract(con, self.input_output_file.get(), self.drop_comp_selection.get())
+        print(f"Ergebnisse nach {pathlib.Path(self.input_output_file.get()).resolve()} extrahiert!")
 
     def extract_callback(self):
+        self.open_xlsx(self.input_output_file.get())
         self.logic()
 
     def get_database_connection(self):
